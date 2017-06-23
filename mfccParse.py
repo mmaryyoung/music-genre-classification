@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import matplotlib.style as ms
 ms.use('seaborn-muted')
 
-import IPython.display
 import librosa
 import librosa.display
 
@@ -60,14 +59,16 @@ def parseAudio(genreIndex, songIndex, fName):
 
 #parseAudio(0,0,'stupid cupid.wav')
 gid = 0
-for root, dirs, files in os.walk('Homemade Dataset'):
-	if '_pickle' not in root and '_img' not in root and 'Dataset' not in root:
+for root, dirs, files in os.walk('/data/hibbslab/jyang/Homemade Dataset'):
+	if '_pickle' not in root and '_img' not in root:
 		sid = 0
+		print(root, gid)
 		for name in files:
 			if 'wav' in name:
 				parseAudio(gid, sid, root + '/' + name)
 				sid +=1
-		gid +=1
+		if sid != 0:
+			gid +=1
 
 x_train = np.asarray(x_train)
 y_train = np.asarray(y_train)
@@ -75,7 +76,7 @@ x_test = np.asarray(x_test)
 y_test = np.asarray(y_test)
 
 
-pickel.dump(x_train, open('x_train_mel.p', 'wb'))
-pickel.dump(y_train, open('x_train_mel.p', 'wb'))
-pickel.dump(x_test, open('x_test_mel.p', 'wb'))
-pickel.dump(y_test, open('y_test_mel.p', 'wb'))
+pickle.dump(x_train, open('x_train_mel.p', 'wb'))
+pickle.dump(y_train, open('y_train_mel.p', 'wb'))
+pickle.dump(x_test, open('x_test_mel.p', 'wb'))
+pickle.dump(y_test, open('y_test_mel.p', 'wb'))
