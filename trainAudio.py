@@ -64,10 +64,11 @@ model.compile(loss='categorical_crossentropy',
               optimizer=opt,
               metrics=['accuracy'])
 
+print(np.amax(x_test))
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
-x_train /= 255
-x_test /= 255
+x_train /= np.amax(x_train)
+x_test /= np.amax(x_test)
 
 print('Not using data augmentation.')
 
