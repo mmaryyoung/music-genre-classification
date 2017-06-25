@@ -15,10 +15,16 @@ num_classes = 10
 epochs = 200
 data_augmentation = True
 
-x_train = pickle.load(open('/data/hibbslab/jyang/x_train.p', 'rb'))
-y_train = pickle.load(open('/data/hibbslab/jyang/y_train.p', 'rb'))
-x_test = pickle.load(open('/data/hibbslab/jyang/x_test.p', 'rb'))
-y_test = pickle.load(open('/data/hibbslab/jyang/y_test.p', 'rb'))
+#x_train = pickle.load(open('/data/hibbslab/jyang/x_train_mel.p', 'rb'))
+#y_train = pickle.load(open('/data/hibbslab/jyang/y_train_mel.p', 'rb'))
+#x_test = pickle.load(open('/data/hibbslab/jyang/x_test_mel.p', 'rb'))
+#y_test = pickle.load(open('/data/hibbslab/jyang/y_test_mel.p', 'rb'))
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+print('x_train shape:', x_train.shape)
+
+# Convert class vectors to binary class matrices.
+y_train = keras.utils.to_categorical(y_train, num_classes)
+y_test = keras.utils.to_categorical(y_test, num_classes)
 
 
 model = Sequential()
@@ -56,6 +62,11 @@ model.add(Activation('softmax'))
 model.compile(loss='categorical_crossentropy',
               optimizer='nadam',
               metrics=['accuracy'])
+
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
+x_train /= 255
+x_test /= 255
 
 print('Not using data augmentation.')
 
