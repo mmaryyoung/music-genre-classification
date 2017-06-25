@@ -16,16 +16,20 @@ num_classes = 10
 epochs = 200
 data_augmentation = True
 
-#x_train = pickle.load(open('/data/hibbslab/jyang/x_train_mel.p', 'rb'))
-#y_train = pickle.load(open('/data/hibbslab/jyang/y_train_mel.p', 'rb'))
-#x_test = pickle.load(open('/data/hibbslab/jyang/x_test_mel.p', 'rb'))
-#y_test = pickle.load(open('/data/hibbslab/jyang/y_test_mel.p', 'rb'))
-(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+x_train = pickle.load(open('/data/hibbslab/jyang/x_train_mel.p', 'rb'))
+y_train = pickle.load(open('/data/hibbslab/jyang/y_train_mel.p', 'rb'))
+x_test = pickle.load(open('/data/hibbslab/jyang/x_test_mel.p', 'rb'))
+y_test = pickle.load(open('/data/hibbslab/jyang/y_test_mel.p', 'rb'))
+#(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 print('x_train shape:', x_train.shape)
+print('y_train shape:', y_train.shape)
+print('x_test shape:', x_test.shape)
+print('y_test shape:', y_test.shape)
+
 
 # Convert class vectors to binary class matrices.
-y_train = keras.utils.to_categorical(y_train, num_classes)
-y_test = keras.utils.to_categorical(y_test, num_classes)
+#y_train = keras.utils.to_categorical(y_train, num_classes)
+#y_test = keras.utils.to_categorical(y_test, num_classes)
 
 
 model = Sequential()
