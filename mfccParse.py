@@ -28,6 +28,7 @@ def parseAudio(genreIndex, songIndex, fName):
 	# CHANGE HERE
 	audioLength = 60*sr
 
+	# Leave the center if longer than one minute
 	if y.shape[0] > audioLength:
 		extraLength = int((y.shape[0] - audioLength)/2)
 		y = y[extraLength : audioLength + extraLength]
@@ -59,7 +60,7 @@ def parseAudio(genreIndex, songIndex, fName):
 
 #parseAudio(0,0,'stupid cupid.wav')
 gid = 0
-for root, dirs, files in os.walk('/data/hibbslab/jyang/Homemade Dataset'):
+for root, dirs, files in os.walk('/data/hibbslab/jyang/genres'):
 	if '_pickle' not in root and '_img' not in root:
 		sid = 0
 		print(root, gid)
