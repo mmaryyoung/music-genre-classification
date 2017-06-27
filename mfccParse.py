@@ -88,9 +88,13 @@ x_train = np.asarray(x_train)
 y_train = np.asarray(y_train)
 x_test = np.asarray(x_test)
 y_test = np.asarray(y_test)
+x_holdout = np.asarray(x_holdout)
+y_holdout = np.asarray(y_holdout)
 
 
 pickle.dump(x_train, open('/data/hibbslab/jyang/tzanetakis/x_train_mel.p', 'wb'))
 pickle.dump(y_train, open('/data/hibbslab/jyang/tzanetakis/y_train_mel.p', 'wb'))
 pickle.dump(x_test, open('/data/hibbslab/jyang/tzanetakis/x_test_mel.p', 'wb'))
 pickle.dump(y_test, open('/data/hibbslab/jyang/tzanetakis/y_test_mel.p', 'wb'))
+pickle.dump(x_holdout, open('/data/hibbslab/jyang/tzanetakis/x_holdout_mel.p', 'wb'))
+pickle.dump(y_holdout, open('/data/hibbslab/jyang/tzanetakis/y_holdout_mel.p', 'wb'))
