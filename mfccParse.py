@@ -21,6 +21,8 @@ x_train = []
 y_train = []
 x_test = []
 y_test = []
+x_holdout = []
+y_holdout = []
 
 
 def parseAudio(genreIndex, songIndex, fName):
@@ -37,7 +39,7 @@ def parseAudio(genreIndex, songIndex, fName):
 	
 	logam = librosa.logamplitude
 	melgram = librosa.feature.melspectrogram
-	longgrid = logam(melgram(y=y, sr=44100,n_fft=1024, n_mels=128),ref_power=1.0)
+	longgrid = logam(melgram(y=y, sr=22050,n_fft=1024, n_mels=128),ref_power=1.0)
 	longgrid = np.expand_dims(longgrid, axis=3)
 	# chunks = map(lambda col: [col[x:x+128] for x in range(0, len(col)-128, 128)], longgrid)
 	chunks = [longgrid[:, x:x+128] for x in range(0, len(longgrid[0])-128,128)]
@@ -47,10 +49,17 @@ def parseAudio(genreIndex, songIndex, fName):
 	oneLabel = [0]*10
 	oneLabel[genreIndex] = 1
 
-	[x_train.append(x) for x in chunks[:15]]
-	[y_train.append(x) for x in [oneLabel]*15]
-	[x_test.append(x) for x in chunks[15:]]
-	[y_test.append(x) for x in [oneLabel]*(len(chunks)-15)]
+	if songIndex < 5:
+		[x_train.append(x) for x in chunks]
+		[y_train.append(x) for x in [oneLabel]*len(chunks)]
+	elif songIndex > 7:
+		[x_holdout.append(x) for x in chunks]
+		[y_holdout.append(x) for x in [oneLabel]*len(chunks)]
+	else:
+		[x_test.append(x) for x in chunks]
+		[y_test.append(x) for x in [oneLabel]*len(chunks)]
+	
+	
 	print(fName)
 	print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
 	print('y_train: ', len(y_train))
@@ -77,7 +86,7 @@ x_test = np.asarray(x_test)
 y_test = np.asarray(y_test)
 
 
-pickle.dump(x_train, open('x_train_mel.p', 'wb'))
-pickle.dump(y_train, open('y_train_mel.p', 'wb'))
-pickle.dump(x_test, open('x_test_mel.p', 'wb'))
-pickle.dump(y_test, open('y_test_mel.p', 'wb'))
+pickle.dump(x_train, open('/data/hibbslab/jyang/tzanetakis/x_train_mel.p', 'wb'))
+pickle.dump(y_train, open('/data/hibbslab/jyang/tzanetakis/y_train_mel.p', 'wb'))
+pickle.dump(x_test, open('/data/hibbslab/jyang/tzanetakis/x_test_mel.p', 'wb'))
+pickle.dump(y_test, open('/data/hibbslab/jyang/tzanetakis/y_test_mel.p', 'wb'))

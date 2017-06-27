@@ -3,6 +3,8 @@ from __future__ import print_function
 # We'll need numpy for some mathematical operations
 import numpy as np
 
+import os
+
 
 # matplotlib for displaying the output
 import matplotlib.pyplot as plt
@@ -24,9 +26,9 @@ audio_path = librosa.util.example_audio_file()
 
 # or uncomment the line below and point it at your favorite song:
 #
-audio_path = '/Users/mac/Desktop/Homemade Dataset/edm/SMLE,Helen Tess - Overflow.wav'
+audio_path = '/Users/mac/Desktop/Aphex Twin - Windowlicker.mp3'
 
-y, sr = librosa.load(audio_path, duration=60)
+y, sr = librosa.load(audio_path, offset=350, duration=15)
 
 # Let's make and display a mel-scaled power (energy-squared) spectrogram
 S = librosa.feature.melspectrogram(y, sr=sr, n_mels=128)
@@ -42,7 +44,7 @@ plt.figure(figsize=(12,4))
 librosa.display.specshow(log_S, sr=sr, x_axis='time', y_axis='mel')
 
 # Put a descriptive title on the plot
-plt.title('mel power spectrogram')
+plt.title(os.path.basename(audio_path) + ' mel power spectrogram')
 
 # draw a color bar
 plt.colorbar(format='%+02.0f dB')
