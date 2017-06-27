@@ -74,7 +74,7 @@ for root, dirs, files in os.walk('/data/hibbslab/jyang/genres'):
 		sid = 0
 		print(root, gid)
 		for name in files:
-			if 'wav' in name:
+			if 'au' in name:
 				parseAudio(gid, sid, root + '/' + name)
 				sid +=1
 		if sid != 0:
