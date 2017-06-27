@@ -50,12 +50,13 @@ def parseAudio(genreIndex, songIndex, fName):
 	oneLabel = [0]*10
 	oneLabel[genreIndex] = 1
 
-	if songIndex < 5:
+	#CHANGE HERE FOR HM DS
+	if songIndex < 50:
 		[x_train.append(x) for x in chunks]
 		[y_train.append(x) for x in [oneLabel]*len(chunks)]
 		print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
 		print('y_train: ', len(y_train))
-	elif songIndex > 7:
+	elif songIndex > 70:
 		[x_holdout.append(x) for x in chunks]
 		[y_holdout.append(x) for x in [oneLabel]*len(chunks)]
 		print('x_holdout: ', len(x_holdout), len(x_holdout[0]), len(x_holdout[0][0]))
