@@ -27,6 +27,7 @@ y_holdout = []
 
 def parseAudio(genreIndex, songIndex, fName):
 	y, sr = librosa.load(fName)
+	print('loaded ', fName)
 	# CHANGE HERE
 	audioLength = 60*sr
 
@@ -52,19 +53,21 @@ def parseAudio(genreIndex, songIndex, fName):
 	if songIndex < 5:
 		[x_train.append(x) for x in chunks]
 		[y_train.append(x) for x in [oneLabel]*len(chunks)]
+		print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
+		print('y_train: ', len(y_train))
 	elif songIndex > 7:
 		[x_holdout.append(x) for x in chunks]
 		[y_holdout.append(x) for x in [oneLabel]*len(chunks)]
+		print('x_holdout: ', len(x_holdout), len(x_holdout[0]), len(x_holdout[0][0]))
+		print('y_holdout: ', len(y_holdout))
 	else:
 		[x_test.append(x) for x in chunks]
 		[y_test.append(x) for x in [oneLabel]*len(chunks)]
+		print('x_test: ', len(x_test), len(x_test[0]), len(x_test[0][0]))
+		print('y_test: ', len(y_test))
 	
 	
-	print(fName)
-	print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
-	print('y_train: ', len(y_train))
-	print('x_test: ', len(x_test), len(x_test[0]), len(x_test[0][0]))
-	print('y_test: ', len(y_test))
+	
 
 
 #parseAudio(0,0,'stupid cupid.wav')
