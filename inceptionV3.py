@@ -13,6 +13,7 @@ import warnings
 import numpy as np
 import pickle
 
+import keras
 from keras.models import Model
 from keras import layers
 from keras.layers import Activation
@@ -236,21 +237,22 @@ def preprocess_input(x):
 
 
 if __name__ == '__main__':
-    model = InceptionV3(include_top=False, weights=None, input_shape=(100,110,3), classes = num_classes)
+    model = InceptionV3(include_top=False, weights=None, input_shape=(128,128,3), classes = num_classes)
 
 
-    x_train_1 = pickle.load(open('/data/hibbslab/jyang/3Channels/x_train_1.p', 'rb'))
-    x_train_2 = pickle.load(open('/data/hibbslab/jyang/3Channels/x_train_2.p', 'rb'))
-    y_train = pickle.load(open('/data/hibbslab/jyang/3Channels/y_train.p', 'rb'))
-    x_test = pickle.load(open('/data/hibbslab/jyang/3Channels/x_test.p', 'rb'))
-    y_test = pickle.load(open('/data/hibbslab/jyang/3Channels/y_test.p', 'rb'))
+    #x_train_1 = pickle.load(open('/data/hibbslab/jyang/3Channels/x_train_1.p', 'rb'))
+    #x_train_2 = pickle.load(open('/data/hibbslab/jyang/3Channels/x_train_2.p', 'rb'))
+    #y_train = pickle.load(open('/data/hibbslab/jyang/3Channels/y_train.p', 'rb'))
+    #x_test = pickle.load(open('/data/hibbslab/jyang/3Channels/x_test.p', 'rb'))
+    #y_test = pickle.load(open('/data/hibbslab/jyang/3Channels/y_test.p', 'rb'))
+    #x_train = x_train_1 + x_train_2    
+    #x_train = np.concatenate((x_train_1, x_train_2),0)
+    x_train = pickle.load(open('/data/hibbslab/jyang/homemade/3Channels/x_train_mel3.p', 'rb'))
+    y_train = pickle.load(open('/data/hibbslab/jyang/homemade/y_train_mel.p', 'rb'))
+    x_test = pickle.load(open('/data/hibbslab/jyang/homemade/3Channels/x_test_mel3.p', 'rb'))
+    y_test = pickle.load(open('/data/hibbslab/jyang/homemade/y_test_mel.p', 'rb'))
 
-    #x_train = map(lambda sample: map(lambda row: map(lambda x: x+[0,0], row), sample), x_train)
-    #x_test = map(lambda sample: map(lambda row: map(lambda x: x+[0,0], row), sample), x_test)
-    x_train = x_train_1 + x_train_2    
-    x_train = np.concatenate((x_train_1, x_train_2),0)
-    print('x_train_1 shape: ', x_train_1.shape) 
-    print('x_train_2 shape: ', x_train_2.shape) 
+
     print('x_train shape: ', x_train.shape) 
     print('y_train shape: ', y_train.shape)
     print('x_test shape: ', x_test.shape)
@@ -258,21 +260,22 @@ if __name__ == '__main__':
 
 
     print('passed loading data')
-
+    
+    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
     model.compile(loss='categorical_crossentropy',
-              optimizer='nadam',
+              optimizer=opt,
               metrics=['accuracy']) 
 
     model.fit(x_train, y_train, batch_size=batch_size, 
     epochs=epochs,
     validation_data=(x_test, y_test), shuffle=True)
 
-    img_path = 'elephant.jpg'
-    img = image.load_img(img_path, target_size=(299, 299))
-    x = image.img_to_array(img)
-    x = np.expand_dims(x, axis=0)
+    #img_path = 'elephant.jpg'
+    #img = image.load_img(img_path, target_size=(299, 299))
+    #x = image.img_to_array(img)
+    #x = np.expand_dims(x, axis=0)
 
-    x = preprocess_input(x)
+    #x = preprocess_input(x)
 
-    preds = model.predict(x)
-    print('Predicted:', decode_predictions(preds))
+    #preds = model.predict(x)
+    #print('Predicted:', decode_predictions(preds))

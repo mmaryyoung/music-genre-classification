@@ -51,12 +51,13 @@ def parseAudio(genreIndex, songIndex, fName):
 	oneLabel[genreIndex] = 1
 
 	#CHANGE HERE FOR HM DS
-	if songIndex < 50:
+	#CHANGE HERE FOR GTZAN
+	if songIndex < 5:
 		[x_train.append(x) for x in chunks]
 		[y_train.append(x) for x in [oneLabel]*len(chunks)]
 		print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
 		print('y_train: ', len(y_train))
-	elif songIndex > 70:
+	elif songIndex > 7:
 		[x_holdout.append(x) for x in chunks]
 		[y_holdout.append(x) for x in [oneLabel]*len(chunks)]
 		print('x_holdout: ', len(x_holdout), len(x_holdout[0]), len(x_holdout[0][0]))
@@ -73,12 +74,13 @@ def parseAudio(genreIndex, songIndex, fName):
 
 #parseAudio(0,0,'stupid cupid.wav')
 gid = 0
-for root, dirs, files in os.walk('/data/hibbslab/jyang/genres'):
+for root, dirs, files in os.walk('/data/hibbslab/jyang/Homemade Dataset'):
 	if '_pickle' not in root and '_img' not in root:
 		sid = 0
 		print(root, gid)
 		for name in files:
-			if 'au' in name:
+			# CHANGE HERE FOR FILE TYPE
+			if 'wav' in name:
 				parseAudio(gid, sid, root + '/' + name)
 				sid +=1
 		if sid != 0:
@@ -92,9 +94,9 @@ x_holdout = np.asarray(x_holdout)
 y_holdout = np.asarray(y_holdout)
 
 
-pickle.dump(x_train, open('/data/hibbslab/jyang/tzanetakis/x_train_mel.p', 'wb'))
-pickle.dump(y_train, open('/data/hibbslab/jyang/tzanetakis/y_train_mel.p', 'wb'))
-pickle.dump(x_test, open('/data/hibbslab/jyang/tzanetakis/x_test_mel.p', 'wb'))
-pickle.dump(y_test, open('/data/hibbslab/jyang/tzanetakis/y_test_mel.p', 'wb'))
-pickle.dump(x_holdout, open('/data/hibbslab/jyang/tzanetakis/x_holdout_mel.p', 'wb'))
-pickle.dump(y_holdout, open('/data/hibbslab/jyang/tzanetakis/y_holdout_mel.p', 'wb'))
+pickle.dump(x_train, open('/data/hibbslab/jyang/homemade/x_train_mel.p', 'wb'))
+pickle.dump(y_train, open('/data/hibbslab/jyang/homemade/y_train_mel.p', 'wb'))
+pickle.dump(x_test, open('/data/hibbslab/jyang/homemade/x_test_mel.p', 'wb'))
+pickle.dump(y_test, open('/data/hibbslab/jyang/homemade/y_test_mel.p', 'wb'))
+pickle.dump(x_holdout, open('/data/hibbslab/jyang/homemade/x_holdout_mel.p', 'wb'))
+pickle.dump(y_holdout, open('/data/hibbslab/jyang/homemade/y_holdout_mel.p', 'wb'))

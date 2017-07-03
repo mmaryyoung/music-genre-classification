@@ -16,10 +16,10 @@ num_classes = 10
 epochs = 200
 data_augmentation = True
 
-x_train = pickle.load(open('/data/hibbslab/jyang/x_train.p', 'rb'))
-y_train = pickle.load(open('/data/hibbslab/jyang/y_train.p', 'rb'))
-x_test = pickle.load(open('/data/hibbslab/jyang/x_test.p', 'rb'))
-y_test = pickle.load(open('/data/hibbslab/jyang/y_test.p', 'rb'))
+x_train = pickle.load(open('/data/hibbslab/jyang/homemade/x_train_mel.p', 'rb'))
+y_train = pickle.load(open('/data/hibbslab/jyang/homemade/y_train_mel.p', 'rb'))
+x_test = pickle.load(open('/data/hibbslab/jyang/homemade/x_test_mel.p', 'rb'))
+y_test = pickle.load(open('/data/hibbslab/jyang/homemade/y_test_mel.p', 'rb'))
 #(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 print('x_train shape:', x_train.shape)
 print('y_train shape:', y_train.shape)
@@ -50,10 +50,6 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
 model.add(Flatten())
-model.add(Dense(512))
-model.add(Activation('relu'))
-model.add(Dense(256))
-model.add(Activation('relu'))
 model.add(Dense(128))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
