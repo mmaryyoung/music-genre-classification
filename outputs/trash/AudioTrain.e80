@@ -1,0 +1,6 @@
+Using TensorFlow backend.
+Can't open '/etc/abrt/plugins/python.conf': No such file or directory
+Traceback (most recent call last):
+  File "trainAudio2.py", line 48, in <module>
+    mmodel.add(Dense(64))
+NameError: name 'mmodel' is not defined

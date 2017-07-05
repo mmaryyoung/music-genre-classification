@@ -1,0 +1,12 @@
+Using TensorFlow backend.
+Can't open '/etc/abrt/plugins/python.conf': No such file or directory
+Traceback (most recent call last):
+  File "inceptionV3.py", line 253, in <module>
+    validation_data=(x_test, y_test), shuffle=True)
+  File "/usr/lib64/python2.7/site-packages/keras/engine/training.py", line 1429, in fit
+    batch_size=batch_size)
+  File "/usr/lib64/python2.7/site-packages/keras/engine/training.py", line 1305, in _standardize_user_data
+    exception_prefix='input')
+  File "/usr/lib64/python2.7/site-packages/keras/engine/training.py", line 139, in _standardize_input_data
+    str(array.shape))
+ValueError: Error when checking input: expected input_1 to have shape (None, 100, 110, 3) but got array with shape (24000, 100, 110, 2)
