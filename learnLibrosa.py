@@ -54,27 +54,27 @@ plt.tight_layout()
 
 plt.show()
 
-# y_harmonic, y_percussive = librosa.effects.hpss(y)
+y_harmonic, y_percussive = librosa.effects.hpss(y)
 
-# # What do the spectrograms look like?
-# # Let's make and display a mel-scaled power (energy-squared) spectrogram
-# S_harmonic   = librosa.feature.melspectrogram(y_harmonic, sr=sr)
-# S_percussive = librosa.feature.melspectrogram(y_percussive, sr=sr)
+# What do the spectrograms look like?
+# Let's make and display a mel-scaled power (energy-squared) spectrogram
+S_harmonic   = librosa.feature.melspectrogram(y_harmonic, sr=sr)
+S_percussive = librosa.feature.melspectrogram(y_percussive, sr=sr)
 
-# # Convert to log scale (dB). We'll use the peak power as reference.
-# log_Sh = librosa.logamplitude(S_harmonic, ref_power=np.max)
-# log_Sp = librosa.logamplitude(S_percussive, ref_power=np.max)
+# Convert to log scale (dB). We'll use the peak power as reference.
+log_Sh = librosa.logamplitude(S_harmonic, ref_power=np.max)
+log_Sp = librosa.logamplitude(S_percussive, ref_power=np.max)
 
 
-# # We'll use a CQT-based chromagram here.  An STFT-based implementation also exists in chroma_cqt()
-# # We'll use the harmonic component to avoid pollution from transients
-# C = librosa.feature.chroma_cqt(y=y_harmonic, sr=sr)
+# We'll use a CQT-based chromagram here.  An STFT-based implementation also exists in chroma_cqt()
+# We'll use the harmonic component to avoid pollution from transients
+C = librosa.feature.chroma_cqt(y=y_harmonic, sr=sr)
 
-# # Next, we'll extract the top 13 Mel-frequency cepstral coefficients (MFCCs)
-# mfcc        = librosa.feature.mfcc(S=log_S, n_mfcc=13)
+# Next, we'll extract the top 13 Mel-frequency cepstral coefficients (MFCCs)
+mfcc        = librosa.feature.mfcc(S=log_S, n_mfcc=13)
 
-# # Let's pad on the first and second deltas while we're at it
-# delta_mfcc  = librosa.feature.delta(mfcc)
-# delta2_mfcc = librosa.feature.delta(mfcc, order=2)
+# Let's pad on the first and second deltas while we're at it
+delta_mfcc  = librosa.feature.delta(mfcc)
+delta2_mfcc = librosa.feature.delta(mfcc, order=2)
 
-# print(mfcc.shape)
+print(mfcc.shape)

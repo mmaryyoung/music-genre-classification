@@ -41,11 +41,13 @@ def parseAudio(genreIndex, songIndex, fName):
 	logam = librosa.logamplitude
 	melgram = librosa.feature.melspectrogram
 	longgrid = logam(melgram(y=y, sr=22050,n_fft=1024, n_mels=128),ref_power=1.0)
-	longgrid = np.expand_dims(longgrid, axis=3)
+	mfcc = librosa.feature.mfcc(S=longgrid, n_mfcc=13)
+	longgrid = np.expand_dims(mfcc, axis=3)
 	# chunks = map(lambda col: [col[x:x+128] for x in range(0, len(col)-128, 128)], longgrid)
-	chunks = [longgrid[:, x:x+42] for x in range(0, len(longgrid[0])-42,42)]
+	chunks = [mfcc[:, x:x+42] for x in range(0, len(mfcc[0])-42,42)]
 	chunks = np.asarray(chunks)
 	# print(chunks.shape)
+	# RESULT: (61, 13, 42) for Stupid Cupid
 
 	oneLabel = [0]*10
 	oneLabel[genreIndex] = 1
@@ -95,9 +97,9 @@ x_holdout = np.asarray(x_holdout)
 y_holdout = np.asarray(y_holdout)
 
 
-pickle.dump(x_train, open('/data/hibbslab/jyang/tzanetakis/ver3.0/x_train_mel.p', 'wb'))
-pickle.dump(y_train, open('/data/hibbslab/jyang/tzanetakis/ver3.0/y_train_mel.p', 'wb'))
-pickle.dump(x_test, open('/data/hibbslab/jyang/tzanetakis/ver3.0/x_test_mel.p', 'wb'))
-pickle.dump(y_test, open('/data/hibbslab/jyang/tzanetakis/ver3.0/y_test_mel.p', 'wb'))
-pickle.dump(x_holdout, open('/data/hibbslab/jyang/tzanetakis/ver3.0/x_holdout_mel.p', 'wb'))
-pickle.dump(y_holdout, open('/data/hibbslab/jyang/tzanetakis/ver3.0/y_holdout_mel.p', 'wb'))
+pickle.dump(x_train, open('/data/hibbslab/jyang/tzanetakis/ver4.0/x_train_mel.p', 'wb'))
+pickle.dump(y_train, open('/data/hibbslab/jyang/tzanetakis/ver4.0/y_train_mel.p', 'wb'))
+pickle.dump(x_test, open('/data/hibbslab/jyang/tzanetakis/ver4.0/x_test_mel.p', 'wb'))
+pickle.dump(y_test, open('/data/hibbslab/jyang/tzanetakis/ver4.0/y_test_mel.p', 'wb'))
+pickle.dump(x_holdout, open('/data/hibbslab/jyang/tzanetakis/ver4.0/x_holdout_mel.p', 'wb'))
+pickle.dump(y_holdout, open('/data/hibbslab/jyang/tzanetakis/ver4.0/y_holdout_mel.p', 'wb'))
