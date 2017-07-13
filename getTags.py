@@ -1,11 +1,11 @@
 import tables
 import os
 
-# def get_title(h5,songidx=0):
-#     """
-#     Get title from a HDF5 song file, by default the first song in it
-#     """
-#     return h5.root.metadata.songs.cols.title[songidx]
+def get_title(h5,songidx=0):
+    """
+    Get title from a HDF5 song file, by default the first song in it
+    """
+    return h5.root.metadata.songs.cols.title[songidx]
 
 # def get_danceability(h5,songidx=0):
 #     """
@@ -42,10 +42,11 @@ def get_segments_timbre(h5,songidx=0):
 # 				h5 = tables.open_file(root + '/' + name, mode='r')
 # 				danceability = get_danceability(h5)
 # 				print danceability
-# 				h5.close()
+# 				
 # 				if danceability > max_dance:
 # 					max_dance = danceability
 # 					max_danceable_song = get_title(h5)
+#				h5.close()
 # 			except tables.exceptions.HDF5ExtError:
 # 				print "Can't find file"
 
@@ -88,6 +89,11 @@ for line in tagsFile:
 				else:
 					x_holdout.append(get_segments_timbre(h5, i))
 					y_holdout.append(oneLabel)
+			print get_title(h5)
+			rover +=1
+			h5.close()
+		except tables.exceptions.HDF5ExtError:
+			print "Can't find file"
 
 
 
