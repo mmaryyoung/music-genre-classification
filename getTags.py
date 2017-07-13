@@ -62,9 +62,9 @@ y_holdout = []
 tags = ['Reggae', 'Jazz', 'RnB', 'Metal', 'Pop', 'Punk', 'Country', 'Latin', 'New Age', 'Rap', 'Rock', 'World', 'Blues', 'Electronic', 'Folk']
 # THERE ARE APPROXIMATELY 191,401 TRACKS
 # TENTATIVELY 1 - 95,700 TRAIN, 95,701 - 153,120 TEST, 153121 - END HOLDOUT
-tagsPath = '/Users/mac/Downloads/msd_tagtraum_cd2c.cls'
+tagsPath = '~/summer2017/msd_tagtraum_cd2c.cls'
 tagsFile = open(tagsPath, 'r')
-dataRoot = '/Users/mac/Downloads/MillionSongSubset/data/'
+dataRoot = '/data/hibbslab/data/millionsong/'
 
 rover = 0
 for line in tagsFile:
