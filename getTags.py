@@ -1,5 +1,8 @@
 import tables
 import os
+import pickle
+import numpy as np
+
 
 def get_title(h5,songidx=0):
     """
@@ -7,11 +10,11 @@ def get_title(h5,songidx=0):
     """
     return h5.root.metadata.songs.cols.title[songidx]
 
-# def get_danceability(h5,songidx=0):
+def get_danceability(h5,songidx=0):
 #     """
 #     Get danceability from a HDF5 song file, by default the first song in it
 #     """
-#     return h5.root.analysis.songs.cols.danceability[songidx]
+    return h5.root.analysis.songs.cols.danceability[songidx]
 
 def get_num_songs(h5):
     """
@@ -59,13 +62,35 @@ y_test = []
 x_holdout = []
 y_holdout = []
 
+def dumpFiles():
+	global x_train
+	global y_train
+	global x_test
+	global y_test
+	global x_holdout
+	global y_holdout
+	x_train = np.asarray(x_train)
+	y_train = np.asarray(y_train)
+	x_test = np.asarray(x_test)
+	y_test = np.asarray(y_test)
+	x_holdout = np.asarray(x_holdout)
+	y_holdout = np.asarray(y_holdout)
+	pickle.dump(x_holdout, open('/data/hibbslab/jyang/msd/ver1.0/x_holdout.p', 'w'))
+	pickle.dump(y_holdout, open('/data/hibbslab/jyang/msd/ver1.0/y_holdout.p', 'w'))
+	pickle.dump(x_test, open('/data/hibbslab/jyang/msd/ver1.0/x_test.p', 'w'))
+	pickle.dump(y_test, open('/data/hibbslab/jyang/msd/ver1.0/y_test.p', 'w'))
+	pickle.dump(x_train, open('/data/hibbslab/jyang/msd/ver1.0/x_train.p', 'w'))
+	pickle.dump(y_train, open('/data/hibbslab/jyang/msd/ver1.0/y_train.p', 'w'))
+
+
+
 # I MANUALLY WENT THROUGH THE TAGGER FILE AND GOT THIS
 tags = ['Reggae', 'Jazz', 'RnB', 'Metal', 'Pop', 'Punk', 'Country', 'Latin', 'New Age', 'Rap', 'Rock', 'World', 'Blues', 'Electronic', 'Folk']
 # THERE ARE APPROXIMATELY 191,401 TRACKS
 # TENTATIVELY 1 - 95,700 TRAIN, 95,701 - 153,120 TEST, 153121 - END HOLDOUT
-tagsPath = '~/summer2017/msd_tagtraum_cd2c.cls'
+tagsPath = '/home/jyang/summer2017/msd_tagtraum_cd2c.cls'
 tagsFile = open(tagsPath, 'r')
-dataRoot = '/data/hibbslab/data/millionsong/'
+dataRoot = '/data/hibbslab/data/millionSong/'
 
 rover = 0
 for line in tagsFile:
@@ -89,13 +114,12 @@ for line in tagsFile:
 				else:
 					x_holdout.append(get_segments_timbre(h5, i))
 					y_holdout.append(oneLabel)
-			print get_title(h5)
+			#print get_title(h5), get_danceability(h5)
 			rover +=1
 			h5.close()
 		except tables.exceptions.HDF5ExtError:
-			print "Can't find file"
+			print "Can't find file", trackID
+		except IOError:
+			print "Can't find file ", trackID 
 
-
-
-
-
+dumpFiles()
