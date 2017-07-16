@@ -16,6 +16,12 @@ def get_danceability(h5,songidx=0):
 #     """
     return h5.root.analysis.songs.cols.danceability[songidx]
 
+def get_duration(h5,songidx=0):
+    """
+    Get duration from a HDF5 song file, by default the first song in it
+    """
+    return h5.root.analysis.songs.cols.duration[songidx]
+
 def get_num_songs(h5):
     """
     Return the number of songs contained in this h5 file, i.e. the number of rows
@@ -115,6 +121,7 @@ for line in tagsFile:
 					x_holdout.append(get_segments_timbre(h5, i))
 					y_holdout.append(oneLabel)
 			#print get_title(h5), get_danceability(h5)
+			print 'duration: ', get_duration(h5), 'timbre shape: ', get_segments_timbre(h5).shape
 			rover +=1
 			h5.close()
 		except tables.exceptions.HDF5ExtError:
