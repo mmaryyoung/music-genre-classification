@@ -111,17 +111,20 @@ for line in tagsFile:
 			oneLabel = [0]*15
 			oneLabel[genreID] = 1
 			for i in range(get_num_songs(h5)):
+				timbres = get_segments_timbre(h5, i)
+				timbres = timbres[:, newaxis]
+				chunks = [timbres[:, x:x+42] for x in range(0, len(timbres[0])-42,42)]
 				if rover < 95700:
-					x_train.append(get_segments_timbre(h5, i))
-					y_train.append(oneLabel)
+					[x_train.append(x) for x in chunks]
+					[y_train.append(x) for x in [oneLabel]*len(chunks)]
 				elif rover < 153120:
-					x_test.append(get_segments_timbre(h5, i))
-					y_test.append(oneLabel)
+					[x_test.append(x) for x in chunks]
+					[y_test.append(x) for x in [oneLabel]*len(chunks)]
 				else:
-					x_holdout.append(get_segments_timbre(h5, i))
-					y_holdout.append(oneLabel)
+					[x_holdout.append(x) for x in chunks]
+					[y_holdout.append(x) for x in [oneLabel]*len(chunks)]
 			#print get_title(h5), get_danceability(h5)
-			print 'duration: ', get_duration(h5), 'timbre shape: ', get_segments_timbre(h5).shape
+			print 'duration: ', get_duration(h5), 'timbre shape: ', timbres.shape
 			rover +=1
 			h5.close()
 		except tables.exceptions.HDF5ExtError:
