@@ -16,10 +16,12 @@ num_classes = 10
 epochs = 200
 data_augmentation = True
 
-x_train = pickle.load(open('/data/hibbslab/jyang/tzanetakis/ver4.0/x_train_mel.p', 'rb'))
-y_train = pickle.load(open('/data/hibbslab/jyang/tzanetakis/ver4.0/y_train_mel.p', 'rb'))
-x_test = pickle.load(open('/data/hibbslab/jyang/tzanetakis/ver4.0/x_test_mel.p', 'rb'))
-y_test = pickle.load(open('/data/hibbslab/jyang/tzanetakis/ver4.0/y_test_mel.p', 'rb'))
+dataPath = '/data/hibbslab/jyang/msd/ver1.0/'
+
+x_train = pickle.load(open(dataPath + 'x_train.p', 'rb'))
+y_train = pickle.load(open(dataPath + 'y_train.p', 'rb'))
+x_test = pickle.load(open(dataPath + 'x_test.p', 'rb'))
+y_test = pickle.load(open(dataPath + 'y_test.p', 'rb'))
 #(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 print('x_train shape:', x_train.shape)
 print('y_train shape:', y_train.shape)

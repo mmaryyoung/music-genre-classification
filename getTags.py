@@ -68,27 +68,6 @@ y_test = []
 x_holdout = []
 y_holdout = []
 
-def dumpFiles():
-	global x_train
-	global y_train
-	global x_test
-	global y_test
-	global x_holdout
-	global y_holdout
-	x_train = np.asarray(x_train)
-	y_train = np.asarray(y_train)
-	x_test = np.asarray(x_test)
-	y_test = np.asarray(y_test)
-	x_holdout = np.asarray(x_holdout)
-	y_holdout = np.asarray(y_holdout)
-	pickle.dump(x_holdout, open('/data/hibbslab/jyang/msd/ver1.0/x_holdout.p', 'w'))
-	pickle.dump(y_holdout, open('/data/hibbslab/jyang/msd/ver1.0/y_holdout.p', 'w'))
-	pickle.dump(x_test, open('/data/hibbslab/jyang/msd/ver1.0/x_test.p', 'w'))
-	pickle.dump(y_test, open('/data/hibbslab/jyang/msd/ver1.0/y_test.p', 'w'))
-	pickle.dump(x_train, open('/data/hibbslab/jyang/msd/ver1.0/x_train.p', 'w'))
-	pickle.dump(y_train, open('/data/hibbslab/jyang/msd/ver1.0/y_train.p', 'w'))
-
-
 
 # I MANUALLY WENT THROUGH THE TAGGER FILE AND GOT THIS
 tags = ['Reggae', 'Jazz', 'RnB', 'Metal', 'Pop', 'Punk', 'Country', 'Latin', 'New Age', 'Rap', 'Rock', 'World', 'Blues', 'Electronic', 'Folk']
@@ -112,7 +91,7 @@ for line in tagsFile:
 			oneLabel[genreID] = 1
 			for i in range(get_num_songs(h5)):
 				timbres = get_segments_timbre(h5, i)
-				timbres = timbres[:, newaxis]
+				timbres = np.expand_dims(timbres, axis=2)
 				chunks = [timbres[:, x:x+42] for x in range(0, len(timbres[0])-42,42)]
 				if rover < 95700:
 					[x_train.append(x) for x in chunks]
@@ -124,7 +103,7 @@ for line in tagsFile:
 					[x_holdout.append(x) for x in chunks]
 					[y_holdout.append(x) for x in [oneLabel]*len(chunks)]
 			#print get_title(h5), get_danceability(h5)
-			print 'duration: ', get_duration(h5), 'timbre shape: ', timbres.shape
+			#print 'duration: ', get_duration(h5), 'timbre shape: ', timbres.shape
 			rover +=1
 			h5.close()
 		except tables.exceptions.HDF5ExtError:
@@ -132,4 +111,25 @@ for line in tagsFile:
 		except IOError:
 			print "Can't find file ", trackID 
 
-dumpFiles()
+x_train = np.asarray(x_train)
+y_train = np.asarray(y_train)
+x_test = np.asarray(x_test)
+y_test = np.asarray(y_test)
+x_holdout = np.asarray(x_holdout)
+y_holdout = np.asarray(y_holdout)
+
+print 'x_train shape: ', x_train.shape
+print 'y_train shape: ', y_train.shape
+print 'x_test shape: ', x_test.shape
+print 'y_test shape: ', y_test.shape
+print 'x_holdout shape: ', x_holdout.shape
+print 'y_holdout shape: ', y_holdout.shape
+
+pickle.dump(x_holdout, open('/data/hibbslab/jyang/msd/ver1.0/x_holdout.p', 'wb'))
+pickle.dump(y_holdout, open('/data/hibbslab/jyang/msd/ver1.0/y_holdout.p', 'wb'))
+pickle.dump(x_test, open('/data/hibbslab/jyang/msd/ver1.0/x_test.p', 'wb'))
+pickle.dump(y_test, open('/data/hibbslab/jyang/msd/ver1.0/y_test.p', 'wb'))
+pickle.dump(x_train, open('/data/hibbslab/jyang/msd/ver1.0/x_train.p', 'wb'))
+pickle.dump(y_train, open('/data/hibbslab/jyang/msd/ver1.0/y_train.p', 'wb'))
+
+
