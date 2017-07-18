@@ -40,6 +40,27 @@ def get_segments_timbre(h5,songidx=0):
     return h5.root.analysis.segments_timbre[h5.root.analysis.songs.cols.idx_segments_timbre[songidx]:
                                             h5.root.analysis.songs.cols.idx_segments_timbre[songidx+1],:]
 
+def get_segments_pitches(h5,songidx=0):
+    """
+    Get segments pitches array. Takes care of the proper indexing if we are in aggregate
+    file. By default, return the array for the first song in the h5 file.
+    To get a regular numpy ndarray, cast the result to: numpy.array( )
+    """
+    if h5.root.analysis.songs.nrows == songidx + 1:
+        return h5.root.analysis.segments_pitches[h5.root.analysis.songs.cols.idx_segments_pitches[songidx]:,:]
+    return h5.root.analysis.segments_pitches[h5.root.analysis.songs.cols.idx_segments_pitches[songidx]:
+                                             h5.root.analysis.songs.cols.idx_segments_pitches[songidx+1],:]
+
+def get_segments_start(h5,songidx=0):
+    """
+    Get segments start array. Takes care of the proper indexing if we are in aggregate
+    file. By default, return the array for the first song in the h5 file.
+    To get a regular numpy ndarray, cast the result to: numpy.array( )
+    """
+    if h5.root.analysis.songs.nrows == songidx + 1:
+        return h5.root.analysis.segments_start[h5.root.analysis.songs.cols.idx_segments_start[songidx]:]
+    return h5.root.analysis.segments_start[h5.root.analysis.songs.cols.idx_segments_start[songidx]:
+                                           h5.root.analysis.songs.cols.idx_segments_start[songidx+1]]
 
 # max_danceable_song = ''
 # max_dance = 0
@@ -91,8 +112,11 @@ for line in tagsFile:
 			oneLabel[genreID] = 1
 			for i in range(get_num_songs(h5)):
 				timbres = get_segments_timbre(h5, i)
-				timbres = np.expand_dims(timbres, axis=2)
-				chunks = [timbres[:, x:x+42] for x in range(0, len(timbres[0])-42,42)]
+				pitches = get_segments_pitches(h5, i)
+				combo = np.concatenate((timbres,pitches),axis=1)
+				chunks = [combo[x:x+50] for x in range(0, len(combo)-50,50)]
+				chunks = np.expand_dims(chunks, axis=3)
+				#print chunks.shape
 				if rover < 95700:
 					[x_train.append(x) for x in chunks]
 					[y_train.append(x) for x in [oneLabel]*len(chunks)]
@@ -103,7 +127,7 @@ for line in tagsFile:
 					[x_holdout.append(x) for x in chunks]
 					[y_holdout.append(x) for x in [oneLabel]*len(chunks)]
 			#print get_title(h5), get_danceability(h5)
-			#print 'duration: ', get_duration(h5), 'timbre shape: ', timbres.shape
+			#print 'duration: ', get_duration(h5), 'timbre shape: ', get_segments_timbre(h5).shape, 'pitches shape: ', get_segments_pitches(h5).shape, 'segments start', get_segments_start(h5).shape
 			rover +=1
 			h5.close()
 		except tables.exceptions.HDF5ExtError:
