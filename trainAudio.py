@@ -1,4 +1,5 @@
 import pickle
+import sPickle
 import numpy as np
 
 import keras
@@ -9,20 +10,31 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
 
+def genToArr(gen):
+	lst = []
+	for i in gen:
+		lst.append(i)
+	return np.asarray(lst)
+
 #K.set_image_dim_ordering('th')
 
 batch_size = 32
-num_classes = 10
+num_classes = 15
 epochs = 200
 data_augmentation = True
 
 dataPath = '/data/hibbslab/jyang/msd/ver1.0/'
 
-x_train = pickle.load(open(dataPath + 'x_train.p', 'rb'))
-y_train = pickle.load(open(dataPath + 'y_train.p', 'rb'))
-x_test = pickle.load(open(dataPath + 'x_test.p', 'rb'))
-y_test = pickle.load(open(dataPath + 'y_test.p', 'rb'))
+x_train_g = sPickle.s_load(open(dataPath + 'x_train.p', 'rb'))
+y_train_g = sPickle.s_load(open(dataPath + 'y_train.p', 'rb'))
+x_test_g = sPickle.s_load(open(dataPath + 'x_test.p', 'rb'))
+y_test_g = sPickle.s_load(open(dataPath + 'y_test.p', 'rb'))
 #(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+x_train = genToArr(x_train_g)
+y_train = genToArr(y_train_g)
+x_test = genToArr(x_test_g)
+y_test = genToArr(y_test_g)
+
 print('x_train shape:', x_train.shape)
 print('y_train shape:', y_train.shape)
 print('x_test shape:', x_test.shape)
