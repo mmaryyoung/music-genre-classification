@@ -2,6 +2,7 @@ import tables
 import os
 import numpy as np
 from klepto.archives import *
+import sPickle
 import getters
 
 x_train = []
@@ -71,15 +72,14 @@ print 'y_test shape: ', y_test.shape
 print 'x_holdout shape: ', x_holdout.shape
 print 'y_holdout shape: ', y_holdout.shape
 
-arch = file_archive('/data/hibbslab/jyang/msd/ver1.0/klep')
-arch['x_train'] = x_train
-arch['y_train'] = y_train
-arch['x_test'] = x_test
-arch['y_test'] = y_test
-arch['x_holdout'] = x_holdout
-arch['y_holdout'] = y_holdout
+pickleRoot = '/data/hibbslab/jyang/msd/ver1.0/'
 
-arch.dump()
+sPickle.s_dump(x_holdout, open(pickleRoot + 'x_holdout.p', 'wb'))
+sPickle.s_dump(y_holdout, open(pickleRoot + 'x_holdout.p', 'wb'))
+sPickle.s_dump(x_test, open(pickleRoot + 'x_test.p', 'wb'))
+sPickle.s_dump(y_test, open(pickleRoot + 'y_test.p', 'wb'))
+sPickle.s_dump(x_train, open(pickleRoot + 'x_train.p', 'wb'))
+sPickle.s_dump(y_train, open(pickleRoot + 'y_train.p', 'wb'))
 
 # pickle.dump(x_holdout, open('/data/hibbslab/jyang/msd/ver1.0/x_holdout.p', 'wb'))
 # pickle.dump(y_holdout, open('/data/hibbslab/jyang/msd/ver1.0/y_holdout.p', 'wb'))
