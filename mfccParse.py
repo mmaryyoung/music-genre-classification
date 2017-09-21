@@ -27,7 +27,7 @@ y_holdout = []
 
 def parseAudio(genreIndex, songIndex, fName):
 	y, sr = librosa.load(fName)
-	print('loaded ', fName)
+	# print('loaded ', fName)
 	# CHANGE HERE
 	audioLength = 60*sr
 
@@ -43,11 +43,12 @@ def parseAudio(genreIndex, songIndex, fName):
 	longgrid = logam(melgram(y=y, sr=22050,n_fft=1024, n_mels=128),ref_power=1.0)
 	# mfcc = librosa.feature.mfcc(S=longgrid, n_mfcc=13)
 	# mfcc = np.expand_dims(mfcc, axis=2)
-	chunks = map(lambda col: [col[x:x+128] for x in range(0, len(col)-128, 128)], longgrid)
+	chunks = map(lambda col: [col[x:x+200] for x in range(0, len(col)-200, 200)], longgrid)
 	# chunks = [mfcc[:, x:x+42] for x in range(0, len(mfcc[0])-42,42)]
 	chunks = np.asarray(chunks)
-	print(chunks.shape)
-	# RESULT: (61, 13, 42, 1) for Stupid Cupid
+	# print(chunks.shape)
+	# New Mel RESULT: (128, 6, 200)
+	# MFCC RESULT: (61, 13, 42, 1) for Stupid Cupid
 
 	oneLabel = [0]*10
 	oneLabel[genreIndex] = 1
@@ -57,18 +58,18 @@ def parseAudio(genreIndex, songIndex, fName):
 	if songIndex < 50:
 		[x_train.append(x) for x in chunks]
 		[y_train.append(x) for x in [oneLabel]*len(chunks)]
-		print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
-		print('y_train: ', len(y_train))
+		# print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
+		# print('y_train: ', len(y_train))
 	elif songIndex > 70:
 		[x_holdout.append(x) for x in chunks]
 		[y_holdout.append(x) for x in [oneLabel]*len(chunks)]
-		print('x_holdout: ', len(x_holdout), len(x_holdout[0]), len(x_holdout[0][0]))
-		print('y_holdout: ', len(y_holdout))
+		# print('x_holdout: ', len(x_holdout), len(x_holdout[0]), len(x_holdout[0][0]))
+		# print('y_holdout: ', len(y_holdout))
 	else:
 		[x_test.append(x) for x in chunks]
 		[y_test.append(x) for x in [oneLabel]*len(chunks)]
-		print('x_test: ', len(x_test), len(x_test[0]), len(x_test[0][0]))
-		print('y_test: ', len(y_test))
+		# print('x_test: ', len(x_test), len(x_test[0]), len(x_test[0][0]))
+		# print('y_test: ', len(y_test))
 	
 	
 	
