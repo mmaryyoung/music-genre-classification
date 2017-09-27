@@ -23,17 +23,22 @@ num_classes = 15
 epochs = 200
 data_augmentation = True
 
-dataPath = '/data/hibbslab/jyang/msd/ver1.0/'
+dataPath = '/data/hibbslab/jyang/tzanetakis/ver3.0/'
+x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
+y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
+x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
+y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
 
-x_train_g = sPickle.s_load(open(dataPath + 'x_train.p', 'rb'))
-y_train_g = sPickle.s_load(open(dataPath + 'y_train.p', 'rb'))
-x_test_g = sPickle.s_load(open(dataPath + 'x_test.p', 'rb'))
-y_test_g = sPickle.s_load(open(dataPath + 'y_test.p', 'rb'))
+#x_train_g = sPickle.s_load(open(dataPath + 'x_train_mel.p', 'rb'))
+#y_train_g = sPickle.s_load(open(dataPath + 'y_train_mel.p', 'rb'))
+#x_test_g = sPickle.s_load(open(dataPath + 'x_test_mel.p', 'rb'))
+#y_test_g = sPickle.s_load(open(dataPath + 'y_test_mel.p', 'rb'))
+
 #(x_train, y_train), (x_test, y_test) = cifar10.load_data()
-x_train = genToArr(x_train_g)
-y_train = genToArr(y_train_g)
-x_test = genToArr(x_test_g)
-y_test = genToArr(y_test_g)
+#x_train = genToArr(x_train_g)
+#y_train = genToArr(y_train_g)
+#x_test = genToArr(x_test_g)
+#y_test = genToArr(y_test_g)
 
 print('x_train shape:', x_train.shape)
 print('y_train shape:', y_train.shape)
@@ -51,17 +56,17 @@ model = Sequential()
 model.add(Conv2D(32, (3, 3), padding='same',
                  input_shape=x_train.shape[1:]))
 model.add(Activation('relu'))
-#model.add(Conv2D(32, (3, 3)))
-#model.add(Activation('relu'))
+model.add(Conv2D(32, (3, 3)))
+model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-#model.add(Conv2D(64, (3, 3), padding='same'))
-#model.add(Activation('relu'))
-#model.add(Conv2D(64, (3, 3)))
-#model.add(Activation('relu'))
-#model.add(MaxPooling2D(pool_size=(2, 2)))
-#model.add(Dropout(0.25))
+model.add(Conv2D(64, (3, 3), padding='same'))
+model.add(Activation('relu'))
+model.add(Conv2D(64, (3, 3)))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
 
 model.add(Flatten())
 model.add(Dense(128))

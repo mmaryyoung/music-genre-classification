@@ -43,11 +43,13 @@ def parseAudio(genreIndex, songIndex, fName):
 	longgrid = logam(melgram(y=y, sr=22050,n_fft=1024, n_mels=128),ref_power=1.0)
 	# mfcc = librosa.feature.mfcc(S=longgrid, n_mfcc=13)
 	# mfcc = np.expand_dims(mfcc, axis=2)
-	chunks = map(lambda col: [col[x:x+200] for x in range(0, len(col)-200, 200)], longgrid)
+	longgrid = np.expand_dims(longgrid, axis=3)
+	chunks = [longgrid[:, x:x+126] for x in range(0, len(longgrid[0])-126,126)]
+	# chunks = map(lambda col: [col[x:x+200] for x in range(0, len(col)-200, 200)], longgrid)
 	# chunks = [mfcc[:, x:x+42] for x in range(0, len(mfcc[0])-42,42)]
 	chunks = np.asarray(chunks)
-	# print(chunks.shape)
-	# New Mel RESULT: (128, 6, 200)
+	print(chunks.shape)
+	# New Mel RESULT: (10, 128, 126, 1)
 	# MFCC RESULT: (61, 13, 42, 1) for Stupid Cupid
 
 	oneLabel = [0]*10
