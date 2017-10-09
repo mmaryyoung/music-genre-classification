@@ -18,6 +18,12 @@ y_test = []
 x_holdout = []
 y_holdout = []
 
+# TODO
+# Target output shape: [batch_size, time_steps, features] 
+
+batch_size = 10000 #how many samples
+time_steps = 1293/12 # per 5 second
+features = 128
 
 def parseAudio(genreIndex, songIndex, fName):
 	y, sr = librosa.load(fName)
@@ -33,30 +39,28 @@ def parseAudio(genreIndex, songIndex, fName):
 	
 	logam = librosa.logamplitude
 	melgram = librosa.feature.melspectrogram
-	longgrid = logam(melgram(y=y, sr=22050,n_fft=1024, n_mels=128),ref_power=1.0)
-	#longgrid = np.expand_dims(longgrid, axis=3)
-	#chunks = [longgrid[:, x:x+126] for x in range(0, len(longgrid[0])-126,126)]
-	chunks = np.asarray(chunks)
+	longgrid = logam(melgram(y=y, sr=22050,n_fft=1024, n_mels=features),ref_power=1.0)
+	chunks = np.swapaxes(longgrid, 0, 1)
 	print(chunks.shape)
-
+	#Mel for RNN (128, 1293)
 	oneLabel = [0]*10
 	oneLabel[genreIndex] = 1
 
 	#CHANGE HERE FOR HM DS
 	#CHANGE HERE FOR GTZAN
 	if songIndex < 50:
-		[x_train.append(x) for x in chunks]
-		[y_train.append(x) for x in [oneLabel]*len(chunks)]
-		# print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
-		# print('y_train: ', len(y_train))
+		x_train.append(chunks)
+		y_train.append(oneLabel)
+		print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
+		print('y_train: ', len(y_train))
 	elif songIndex > 70:
-		[x_holdout.append(x) for x in chunks]
-		[y_holdout.append(x) for x in [oneLabel]*len(chunks)]
+		x_holdout.append(chunks)
+		y_holdout.append(oneLabel)
 		# print('x_holdout: ', len(x_holdout), len(x_holdout[0]), len(x_holdout[0][0]))
 		# print('y_holdout: ', len(y_holdout))
 	else:
-		[x_test.append(x) for x in chunks]
-		[y_test.append(x) for x in [oneLabel]*len(chunks)]
+		x_test.append(chunks)
+		y_test.append(oneLabel)
 		# print('x_test: ', len(x_test), len(x_test[0]), len(x_test[0][0]))
 		# print('y_test: ', len(y_test))
 	
@@ -87,9 +91,9 @@ x_holdout = np.asarray(x_holdout)
 y_holdout = np.asarray(y_holdout)
 
 
-pickle.dump(x_train, open('/data/hibbslab/jyang/tzanetakis/ver5.0/x_train_mel.p', 'wb'))
-pickle.dump(y_train, open('/data/hibbslab/jyang/tzanetakis/ver5.0/y_train_mel.p', 'wb'))
-pickle.dump(x_test, open('/data/hibbslab/jyang/tzanetakis/ver5.0/x_test_mel.p', 'wb'))
-pickle.dump(y_test, open('/data/hibbslab/jyang/tzanetakis/ver5.0/y_test_mel.p', 'wb'))
-pickle.dump(x_holdout, open('/data/hibbslab/jyang/tzanetakis/ver5.0/x_holdout_mel.p', 'wb'))
-pickle.dump(y_holdout, open('/data/hibbslab/jyang/tzanetakis/ver5.0/y_holdout_mel.p', 'wb'))
+pickle.dump(x_train, open('/data/hibbslab/jyang/tzanetakis/ver6.0/x_train_mel.p', 'wb'))
+pickle.dump(y_train, open('/data/hibbslab/jyang/tzanetakis/ver6.0/y_train_mel.p', 'wb'))
+pickle.dump(x_test, open('/data/hibbslab/jyang/tzanetakis/ver6.0/x_test_mel.p', 'wb'))
+pickle.dump(y_test, open('/data/hibbslab/jyang/tzanetakis/ver6.0/y_test_mel.p', 'wb'))
+pickle.dump(x_holdout, open('/data/hibbslab/jyang/tzanetakis/ver6.0/x_holdout_mel.p', 'wb'))
+pickle.dump(y_holdout, open('/data/hibbslab/jyang/tzanetakis/ver6.0/y_holdout_mel.p', 'wb'))
