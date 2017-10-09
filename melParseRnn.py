@@ -41,8 +41,8 @@ def parseAudio(genreIndex, songIndex, fName):
 	melgram = librosa.feature.melspectrogram
 	longgrid = logam(melgram(y=y, sr=22050,n_fft=1024, n_mels=features),ref_power=1.0)
 	chunks = np.swapaxes(longgrid, 0, 1)
-	print(chunks.shape)
-	#Mel for RNN (128, 1293)
+	#print(chunks.shape)
+	#Mel for RNN (1293, 128)
 	oneLabel = [0]*10
 	oneLabel[genreIndex] = 1
 
@@ -51,8 +51,8 @@ def parseAudio(genreIndex, songIndex, fName):
 	if songIndex < 50:
 		x_train.append(chunks)
 		y_train.append(oneLabel)
-		print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
-		print('y_train: ', len(y_train))
+		#print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
+		#print('y_train: ', len(y_train))
 	elif songIndex > 70:
 		x_holdout.append(chunks)
 		y_holdout.append(oneLabel)

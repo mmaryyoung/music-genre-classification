@@ -1,6 +1,7 @@
 import keras.layers as L
 import keras.models as M
 
+import pickle
 import numpy as np
 
 # The inputs to the model.
@@ -34,10 +35,9 @@ data_y = np.array([
 ])
 dataPath = '/data/hibbslab/jyang/tzanetakis/ver6.0/'
 x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
-x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
 y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
-x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
-y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
+#x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
+#y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
 
 # Each input data point has 2 timesteps, each with 3 features.
 # So the input shape (excluding batch_size) is (2, 3), which
