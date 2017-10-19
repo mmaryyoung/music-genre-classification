@@ -57,14 +57,14 @@ for _ in range(num_layers):
     stacked_rnn.append(tf.nn.rnn_cell.LSTMCell(state_size, state_is_tuple=True))
 
 cell = tf.nn.rnn_cell.MultiRNNCell(stacked_rnn, state_is_tuple=True)
-#HEREEEEEEEEEEEEEE!!!!!! static??
 states_series, current_state = tf.contrib.rnn.static_rnn(cell, inputs_series, initial_state=rnn_tuple_state)
 
 logits_series = [tf.matmul(state, W2) + b2 for state in states_series] #Broadcasted addition
 predictions_series = [tf.nn.softmax(logits) for logits in logits_series]
 
 losses = [tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels) for logits, labels in zip(logits_series,labels_series)]
-total_loss = tf.reduce_mean(losses)
+#total_loss = tf.reduce_mean(losses)
+total_loss = tf.reduce_mean(losses[-1])
 
 train_step = tf.train.AdagradOptimizer(0.3).minimize(total_loss)
 
