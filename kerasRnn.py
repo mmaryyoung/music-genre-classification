@@ -4,6 +4,10 @@ import keras.models as M
 import pickle
 import numpy as np
 
+batch_size = 32
+num_classes = 10
+epochs = 200
+
 # The inputs to the model.
 # We will create two data points, just for the example.
 data_x = np.array([
@@ -36,8 +40,8 @@ data_y = np.array([
 dataPath = '/data/hibbslab/jyang/tzanetakis/ver6.0/'
 x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
 y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
-#x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
-#y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
+x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
+y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
 
 # Each input data point has 2 timesteps, each with 3 features.
 # So the input shape (excluding batch_size) is (2, 3), which
@@ -48,7 +52,7 @@ model_input = L.Input(shape=(x_train.shape[1:]))
 # Because return_sequences=True, it will output 2 timesteps, each
 # with 4 features. So the output shape (excluding batch size) is
 # (2, 4), which matches the shape of each data point in data_y above.
-model_output = L.LSTM(10, return_sequences=False)(model_input)
+model_output = L.LSTM(num_classes, return_sequences=False)(model_input)
 
 # Create the model.
 model = M.Model(input=model_input, output=model_output)
@@ -58,4 +62,4 @@ model = M.Model(input=model_input, output=model_output)
 model.compile('sgd', 'mean_squared_error')
 
 # Train
-model.fit(x_train, y_train)
+model.fit(x_train, y_train, batch_size=batch_size, epochs = epochs, validation_data=(x_test, y_test), shuffle=True)

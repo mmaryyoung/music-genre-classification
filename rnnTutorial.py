@@ -5,16 +5,27 @@ import matplotlib.pyplot as plt
 
 num_epochs = 100
 total_series_length = 50000
-truncated_backprop_length = 15
+#truncated_backprop_length = 15
+truncated_backprop_length = 129  #3 seconds
 state_size = 4
-num_classes = 2
+#num_classes = 2
+num_classes = 10
 echo_step = 3
-batch_size = 5
-num_batches = total_series_length//batch_size//truncated_backprop_length
+#batch_size = 5
+batch_size = 500
+#num_batches = total_series_length//batch_size//truncated_backprop_length
+num_batches = 1292//truncated_backprop_length
 num_layers = 3
 
 def pad(arr):
     return np.append(arr, [0,1,0])
+
+def loadData(dataPath):
+    x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
+    y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
+    #x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
+    #y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb')) 
+    return (x_train, y_train)
 
 def generateData():
     x = np.array(np.random.choice(2, total_series_length, p=[0.5, 0.5]))
@@ -97,7 +108,8 @@ with tf.Session() as sess:
     loss_list = []
 
     for epoch_idx in range(num_epochs):
-        x,y = generateData()
+        #x,y = generateData()
+	x,y = loadData("/data/hibbslab/jyang/tzanetakis/ver6.0/")
 
         _current_state = np.zeros((num_layers, 2, batch_size, state_size))
 
