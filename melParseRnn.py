@@ -43,6 +43,14 @@ def parseAudio(genreIndex, songIndex, fName):
 	chunks = np.swapaxes(longgrid, 0, 1)
 	#print(chunks.shape)
 	#Mel for RNN (1293, 128)
+	if chunks.shape != (1293, 128):
+		print(chunks.shape)
+		if chunks.shape[0]>1293:
+			chunks = chunks[:1293]
+		elif chunks.shape[0] < 1293:
+			diff = 1293 - chunks.shape[0]
+			chunks = np.insert(chunks, 0, [[0.0]*128]*diff, axis=0)
+
 	oneLabel = [0]*10
 	oneLabel[genreIndex] = 1
 

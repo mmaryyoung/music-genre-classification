@@ -45,7 +45,7 @@ print "y_train: ", y_train.shape
 # Each input data point has 2 timesteps, each with 3 features.
 # So the input shape (excluding batch_size) is (2, 3), which
 # matches the shape of each data point in data_x above.
-model_input = L.Input(shape=(1293, 128))
+model_input = L.Input(shape=(x_train.shape[1:]))
 
 # This RNN will return timesteps with 4 features each.
 # Because return_sequences=True, it will output 2 timesteps, each
