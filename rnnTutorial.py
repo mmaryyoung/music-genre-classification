@@ -23,16 +23,15 @@ def generateData():
 
     x = x.reshape((batch_size, -1))  # The first index changing slowest, subseries as rows
     # new lines
-    #x = np.expand_dims(x, axis = 2)
-    #x = np.apply_along_axis(pad, 2, x)
+    x = np.expand_dims(x, axis = 2)
+    x = np.apply_along_axis(pad, 2, x)
 
     y = y.reshape((batch_size, -1))
-
     return (x, y)
 
-batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length])
-#batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length, 4])
-
+#batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length])
+batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length, 4])
+print(batchX_placeholder.shape)
 batchY_placeholder = tf.placeholder(tf.int32, [batch_size, truncated_backprop_length])
 
 init_state = tf.placeholder(tf.float32, [num_layers, 2, batch_size, state_size])
@@ -47,8 +46,10 @@ W2 = tf.Variable(np.random.rand(state_size, num_classes),dtype=tf.float32)
 b2 = tf.Variable(np.zeros((1,num_classes)), dtype=tf.float32)
 
 # Unpack columns
-inputs_series = tf.split(axis = 1, num_or_size_splits = truncated_backprop_length, value = batchX_placeholder)
+# inputs_series = tf.split(axis = 1, num_or_size_splits = truncated_backprop_length, value = batchX_placeholder)
+inputs_series = tf.unstack(batchX_placeholder, axis=1)
 labels_series = tf.unstack(batchY_placeholder, axis=1)
+
 
 # Forward passes
 stacked_rnn = []
@@ -90,9 +91,9 @@ def plot(loss_list, predictions_series, batchX, batchY):
 
 with tf.Session() as sess:
     sess.run(tf.initialize_all_variables())
-    plt.ion()
-    plt.figure()
-    plt.show()
+    #plt.ion()
+    #plt.figure()
+    #plt.show()
     loss_list = []
 
     for epoch_idx in range(num_epochs):
@@ -106,7 +107,8 @@ with tf.Session() as sess:
             start_idx = batch_idx * truncated_backprop_length
             end_idx = start_idx + truncated_backprop_length
 
-            batchX = x[:,start_idx:end_idx]
+            #batchX = x[:,start_idx:end_idx]
+            batchX = x[:,start_idx:end_idx, :]
             batchY = y[:,start_idx:end_idx]
 
             _total_loss, _train_step, _current_state, _predictions_series = sess.run(
@@ -122,7 +124,7 @@ with tf.Session() as sess:
 
             if batch_idx%100 == 0:
                 print("Step",batch_idx, "Batch loss", _total_loss)
-                plot(loss_list, _predictions_series, batchX, batchY)
+                #plot(loss_list, _predictions_series, batchX, batchY)
 
 plt.ioff()
 plt.show()
