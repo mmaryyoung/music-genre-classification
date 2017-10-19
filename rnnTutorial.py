@@ -2,6 +2,7 @@ from __future__ import print_function, division
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import pickle
 
 num_epochs = 100
 total_series_length = 50000
@@ -11,6 +12,7 @@ state_size = 4
 #num_classes = 2
 num_classes = 10
 echo_step = 3
+num_features = 128
 #batch_size = 5
 batch_size = 500
 #num_batches = total_series_length//batch_size//truncated_backprop_length
@@ -41,15 +43,16 @@ def generateData():
     return (x, y)
 
 #batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length])
-batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length, 4])
+batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length, num_features])
 print(batchX_placeholder.shape)
 batchY_placeholder = tf.placeholder(tf.int32, [batch_size, truncated_backprop_length])
 
 init_state = tf.placeholder(tf.float32, [num_layers, 2, batch_size, state_size])
 
 state_per_layer_list = tf.unstack(init_state, axis=0)
+# Changing all tf.nn.rnn_cell into tf.contrib.rnn
 rnn_tuple_state = tuple(
-    [tf.nn.rnn_cell.LSTMStateTuple(state_per_layer_list[idx][0], state_per_layer_list[idx][1])
+    [tf.contrib.rnn.LSTMStateTuple(state_per_layer_list[idx][0], state_per_layer_list[idx][1])
      for idx in range(num_layers)]
 )
 
@@ -65,9 +68,11 @@ labels_series = tf.unstack(batchY_placeholder, axis=1)
 # Forward passes
 stacked_rnn = []
 for _ in range(num_layers):
-    stacked_rnn.append(tf.nn.rnn_cell.LSTMCell(state_size, state_is_tuple=True))
+    #rnn_cell
+    stacked_rnn.append(tf.contrib.rnn.LSTMCell(state_size, state_is_tuple=True))
 
-cell = tf.nn.rnn_cell.MultiRNNCell(stacked_rnn, state_is_tuple=True)
+#rnn_cell
+cell = tf.contrib.rnn.MultiRNNCell(stacked_rnn, state_is_tuple=True)
 states_series, current_state = tf.contrib.rnn.static_rnn(cell, inputs_series, initial_state=rnn_tuple_state)
 
 logits_series = [tf.matmul(state, W2) + b2 for state in states_series] #Broadcasted addition
