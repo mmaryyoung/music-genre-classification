@@ -51,8 +51,8 @@ def parseAudio(genreIndex, songIndex, fName):
 	if songIndex < 50:
 		x_train.append(chunks)
 		y_train.append(oneLabel)
-		#print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
-		#print('y_train: ', len(y_train))
+		# print('x_train: ', np.asarray(x_train).shape)
+		# print('y_train: ', np.asarray(y_train).shape)
 	elif songIndex > 70:
 		x_holdout.append(chunks)
 		y_holdout.append(oneLabel)
@@ -63,7 +63,7 @@ def parseAudio(genreIndex, songIndex, fName):
 		y_test.append(oneLabel)
 		# print('x_test: ', len(x_test), len(x_test[0]), len(x_test[0][0]))
 		# print('y_test: ', len(y_test))
-	
+	print("x_train", np.asarray(x_train).shape)	
 	
 	
 
@@ -83,14 +83,23 @@ for root, dirs, files in os.walk('/data/hibbslab/jyang/genres'):
 		if sid != 0:
 			gid +=1
 
+print("before: ")
+print("x_train: ", x_train.shape)
+print("y_train: ", y_train.shape)
+print("x_test: ", x_test.shape)
+print("y_test: ", y_test.shape)
+
 x_train = np.asarray(x_train)
 y_train = np.asarray(y_train)
 x_test = np.asarray(x_test)
 y_test = np.asarray(y_test)
 x_holdout = np.asarray(x_holdout)
 y_holdout = np.asarray(y_holdout)
-
-
+print("after")
+print("x_train: ", x_train.shape)
+print("y_train: ", y_train.shape)
+print("x_test: ", x_test.shape)
+print("y_test: ", y_test.shape)
 pickle.dump(x_train, open('/data/hibbslab/jyang/tzanetakis/ver6.0/x_train_mel.p', 'wb'))
 pickle.dump(y_train, open('/data/hibbslab/jyang/tzanetakis/ver6.0/y_train_mel.p', 'wb'))
 pickle.dump(x_test, open('/data/hibbslab/jyang/tzanetakis/ver6.0/x_test_mel.p', 'wb'))

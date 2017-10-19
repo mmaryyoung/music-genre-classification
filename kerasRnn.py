@@ -36,9 +36,12 @@ data_y = np.array([
 dataPath = '/data/hibbslab/jyang/tzanetakis/ver6.0/'
 x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
 y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
-#x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
-#y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
-
+x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
+y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
+print "x_train: ", x_train.shape
+print "y_train: ", y_train.shape
+#print "data_x: ", data_x.shape
+#print "data_y: ", data_y.shape
 # Each input data point has 2 timesteps, each with 3 features.
 # So the input shape (excluding batch_size) is (2, 3), which
 # matches the shape of each data point in data_x above.
