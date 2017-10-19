@@ -48,7 +48,7 @@ model_input = L.Input(shape=(x_train.shape[1:]))
 # Because return_sequences=True, it will output 2 timesteps, each
 # with 4 features. So the output shape (excluding batch size) is
 # (2, 4), which matches the shape of each data point in data_y above.
-model_output = L.LSTM(1, return_sequences=False)(model_input)
+model_output = L.LSTM(10, return_sequences=False)(model_input)
 
 # Create the model.
 model = M.Model(input=model_input, output=model_output)

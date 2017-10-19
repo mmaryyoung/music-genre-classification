@@ -28,7 +28,7 @@ features = 128
 def parseAudio(genreIndex, songIndex, fName):
 	y, sr = librosa.load(fName)
 	# CHANGE HERE
-	audioLength = 60*sr
+	audioLength = 30*sr
 
 	# Leave the center if longer than one minute
 	if y.shape[0] > audioLength:
@@ -42,13 +42,13 @@ def parseAudio(genreIndex, songIndex, fName):
 	longgrid = logam(melgram(y=y, sr=22050,n_fft=1024, n_mels=features),ref_power=1.0)
 	chunks = np.swapaxes(longgrid, 0, 1)
 	#print(chunks.shape)
-	#Mel for RNN (1293, 128)
-	if chunks.shape != (1293, 128):
+	#Mel for RNN (1292, 128)
+	if chunks.shape != (1292, 128):
 		print(chunks.shape)
-		if chunks.shape[0]>1293:
-			chunks = chunks[:1293]
-		elif chunks.shape[0] < 1293:
-			diff = 1293 - chunks.shape[0]
+		if chunks.shape[0]>1292:
+			chunks = chunks[:1292]
+		elif chunks.shape[0] < 1292:
+			diff = 1292 - chunks.shape[0]
 			chunks = np.insert(chunks, 0, [[0.0]*128]*diff, axis=0)
 
 	oneLabel = [0]*10
@@ -91,11 +91,6 @@ for root, dirs, files in os.walk('/data/hibbslab/jyang/genres'):
 		if sid != 0:
 			gid +=1
 
-print("before: ")
-print("x_train: ", x_train.shape)
-print("y_train: ", y_train.shape)
-print("x_test: ", x_test.shape)
-print("y_test: ", y_test.shape)
 
 x_train = np.asarray(x_train)
 y_train = np.asarray(y_train)
