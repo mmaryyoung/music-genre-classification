@@ -44,8 +44,9 @@ def generateData():
 
 #batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length])
 batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length, num_features])
-print(batchX_placeholder.shape)
-batchY_placeholder = tf.placeholder(tf.int32, [batch_size, truncated_backprop_length])
+print("batchX_placeholder shape: ", batchX_placeholder.shape)
+#batchY_placeholder = tf.placeholder(tf.int32, [batch_size, num_classes])
+batchY_placeholder = tf.placeholder(tf.float32, [batch_size, num_classes])
 
 init_state = tf.placeholder(tf.float32, [num_layers, 2, batch_size, state_size])
 
@@ -63,7 +64,7 @@ b2 = tf.Variable(np.zeros((1,num_classes)), dtype=tf.float32)
 # inputs_series = tf.split(axis = 1, num_or_size_splits = truncated_backprop_length, value = batchX_placeholder)
 inputs_series = tf.unstack(batchX_placeholder, axis=1)
 labels_series = tf.unstack(batchY_placeholder, axis=1)
-
+print("inputs_series shape: ", inputs_series[0].get_shape())
 
 # Forward passes
 stacked_rnn = []
@@ -73,16 +74,35 @@ for _ in range(num_layers):
 
 #rnn_cell
 cell = tf.contrib.rnn.MultiRNNCell(stacked_rnn, state_is_tuple=True)
-states_series, current_state = tf.contrib.rnn.static_rnn(cell, inputs_series, initial_state=rnn_tuple_state)
+#states_series, current_state = tf.contrib.rnn.static_rnn(cell, inputs_series, initial_state=rnn_tuple_state)
 
-logits_series = [tf.matmul(state, W2) + b2 for state in states_series] #Broadcasted addition
-predictions_series = [tf.nn.softmax(logits) for logits in logits_series]
+# new things
+val, state = tf.nn.dynamic_rnn(cell, batchX_placeholder, dtype=tf.float32)
+# val shape: 500, 129, 4
+print("val shape: ", val.get_shape())
+val = tf.transpose(val, [1, 0, 2])
+last = tf.gather(val, int(val.get_shape()[0]) - 1)
+print("last shape: ", last.get_shape())
 
-losses = [tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels) for logits, labels in zip(logits_series,labels_series)]
+weight = tf.Variable(tf.truncated_normal([state_size, num_classes]))
+bias = tf.Variable(tf.constant(0.1, shape=[num_classes]))
+
+prediction = tf.nn.softmax(tf.matmul(last, weight) + bias)
+cross_entropy = -tf.reduce_sum(batchY_placeholder * tf.log(tf.clip_by_value(prediction,1e-10,1.0)))
+
+train_step = tf.train.AdagradOptimizer(0.3).minimize(cross_entropy)
+
+mistakes = tf.not_equal(tf.argmax(batchY_placeholder, 1), tf.argmax(prediction, 1))
+total_loss = tf.reduce_mean(tf.cast(mistakes, tf.float32))
+
+
+#logits_series = [tf.matmul(state, W2) + b2 for state in states_series] #Broadcasted addition
+#predictions_series = [tf.nn.softmax(logits) for logits in logits_series]
+
+#losses = [tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels) for logits, labels in zip(logits_series,labels_series)]
 #total_loss = tf.reduce_mean(losses)
-total_loss = tf.reduce_mean(losses[-1])
 
-train_step = tf.train.AdagradOptimizer(0.3).minimize(total_loss)
+#train_step = tf.train.AdagradOptimizer(0.3).minimize(total_loss)
 
 def plot(loss_list, predictions_series, batchX, batchY):
     plt.subplot(2, 3, 1)
@@ -114,8 +134,7 @@ with tf.Session() as sess:
 
     for epoch_idx in range(num_epochs):
         #x,y = generateData()
-	x,y = loadData("/data/hibbslab/jyang/tzanetakis/ver6.0/")
-
+        x,y = loadData("/data/hibbslab/jyang/tzanetakis/ver6.0/")
         _current_state = np.zeros((num_layers, 2, batch_size, state_size))
 
         print("New data, epoch", epoch_idx)
