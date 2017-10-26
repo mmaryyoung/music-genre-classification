@@ -135,7 +135,7 @@ with tf.Session() as sess:
     for epoch_idx in range(num_epochs):
         #x,y = generateData()
         x,y = loadData("/data/hibbslab/jyang/tzanetakis/ver6.0/")
-        _current_state = np.zeros((num_layers, 2, batch_size, state_size))
+        _state = np.zeros((num_layers, 2, batch_size, state_size))
 
         print("New data, epoch", epoch_idx)
 
@@ -147,19 +147,19 @@ with tf.Session() as sess:
             batchX = x[:,start_idx:end_idx, :]
             batchY = y[:,start_idx:end_idx]
 
-            _total_loss, _train_step, _current_state, _predictions_series = sess.run(
-                [total_loss, train_step, current_state, predictions_series],
+            _cross_entropy, _train_step, _state, _prediction = sess.run(
+                [cross_entropy, train_step, state, prediction],
                 feed_dict={
                     batchX_placeholder: batchX,
                     batchY_placeholder: batchY,
-                    init_state: _current_state
+                    init_state: _state
                 })
 
 
-            loss_list.append(_total_loss)
+            loss_list.append(_cross_entropy)
 
             if batch_idx%100 == 0:
-                print("Step",batch_idx, "Batch loss", _total_loss)
+                print("Step",batch_idx, "Batch loss", _cross_entropy)
                 #plot(loss_list, _predictions_series, batchX, batchY)
 
 plt.ioff()

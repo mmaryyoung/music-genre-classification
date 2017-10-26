@@ -1,5 +1,6 @@
 import keras.layers as L
 import keras.models as M
+import keras
 
 import pickle
 import numpy as np
@@ -37,16 +38,10 @@ data_y = np.array([
     # Target features at timestep 2
     [205, 206, 207, 208]
 ])
-dataPath = '/data/hibbslab/jyang/tzanetakis/ver6.0/'
-x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
-y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
-x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
-y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
-
 # Each input data point has 2 timesteps, each with 3 features.
 # So the input shape (excluding batch_size) is (2, 3), which
 # matches the shape of each data point in data_x above.
-model_input = L.Input(shape=(x_train.shape[1:]))
+model_input = L.Input(shape=(1292,128))
 
 # This RNN will return timesteps with 4 features each.
 # Because return_sequences=True, it will output 2 timesteps, each
@@ -59,7 +54,15 @@ model = M.Model(input=model_input, output=model_output)
 
 # You need to pick appropriate loss/optimizers for your problem.
 # I'm just using these to make the example compile.
-model.compile('sgd', 'mean_squared_error')
+opt = keras.optimizers.rmsprop(lr=0.0001)
+model.compile(optimizer=opt, loss="mean_squared_error", metrics=['accuracy'])
+
+dataPath = '/data/hibbslab/jyang/tzanetakis/ver6.0/'
+x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
+y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
+x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
+y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
+
 
 # Train
 model.fit(x_train, y_train, batch_size=batch_size, epochs = epochs, validation_data=(x_test, y_test), shuffle=True)
