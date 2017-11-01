@@ -79,7 +79,7 @@ cell = tf.contrib.rnn.MultiRNNCell(stacked_rnn, state_is_tuple=True)
 # new things
 val, state = tf.nn.dynamic_rnn(cell, batchX_placeholder, dtype=tf.float32)
 # val shape: 500, 129, 4
-print("val shape: ", val.get_shape())
+print("state shape: ", len(state), len(state[0]), state[0][0].get_shape()) #3 2 (500, 4)
 val = tf.transpose(val, [1, 0, 2])
 last = tf.gather(val, int(val.get_shape()[0]) - 1)
 print("last shape: ", last.get_shape())
@@ -89,11 +89,11 @@ bias = tf.Variable(tf.constant(0.1, shape=[num_classes]))
 
 prediction = tf.nn.softmax(tf.matmul(last, weight) + bias)
 cross_entropy = -tf.reduce_sum(batchY_placeholder * tf.log(tf.clip_by_value(prediction,1e-10,1.0)))
+print("cross_entropy shape: ", cross_entropy.get_shape()) #() 
+print("prediction shape: ", prediction.get_shape()) #(500, 10)
 
 train_step = tf.train.AdagradOptimizer(0.3).minimize(cross_entropy)
-
-mistakes = tf.not_equal(tf.argmax(batchY_placeholder, 1), tf.argmax(prediction, 1))
-total_loss = tf.reduce_mean(tf.cast(mistakes, tf.float32))
+print("train_step shape: ", train_step.get_shape())
 
 
 #logits_series = [tf.matmul(state, W2) + b2 for state in states_series] #Broadcasted addition
