@@ -14,7 +14,7 @@ num_classes = 10
 echo_step = 3
 num_features = 128
 #batch_size = 5
-batch_size = 500
+batch_size = 210
 #num_batches = total_series_length//batch_size//truncated_backprop_length
 num_batches = 1292//truncated_backprop_length
 num_layers = 3
@@ -23,11 +23,11 @@ def pad(arr):
     return np.append(arr, [0,1,0])
 
 def loadData(dataPath):
-    x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
-    y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
-    #x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
-    #y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb')) 
-    return (x_train, y_train)
+    #x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
+    #y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
+    x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
+    y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb')) 
+    return (x_test, y_test)
 
 def generateData():
     x = np.array(np.random.choice(2, total_series_length, p=[0.5, 0.5]))
@@ -145,8 +145,10 @@ with tf.Session() as sess:
 
             #batchX = x[:,start_idx:end_idx]
             batchX = x[:,start_idx:end_idx, :]
-            batchY = y[:,start_idx:end_idx]
-
+            #batchY = y[:,start_idx:end_idx]
+	    batchY = y
+	    print("batchX shape: ", batchX.shape)
+	    print("batchY_shape: ", batchY.shape)
             _cross_entropy, _train_step, _state, _prediction = sess.run(
                 [cross_entropy, train_step, state, prediction],
                 feed_dict={
