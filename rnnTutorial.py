@@ -93,7 +93,7 @@ print("cross_entropy shape: ", cross_entropy.get_shape()) #()
 print("prediction shape: ", prediction.get_shape()) #(500, 10)
 
 train_step = tf.train.AdagradOptimizer(0.3).minimize(cross_entropy)
-print("train_step shape: ", train_step.get_shape())
+#print("train_step shape: ", train_step.get_shape())
 
 
 #logits_series = [tf.matmul(state, W2) + b2 for state in states_series] #Broadcasted addition
@@ -146,9 +146,9 @@ with tf.Session() as sess:
             #batchX = x[:,start_idx:end_idx]
             batchX = x[:,start_idx:end_idx, :]
             #batchY = y[:,start_idx:end_idx]
-	    batchY = y
-	    print("batchX shape: ", batchX.shape)
-	    print("batchY_shape: ", batchY.shape)
+            batchY = y
+            print("batchX shape: ", batchX.shape)
+            print("batchY_shape: ", batchY.shape)
             _cross_entropy, _train_step, _state, _prediction = sess.run(
                 [cross_entropy, train_step, state, prediction],
                 feed_dict={

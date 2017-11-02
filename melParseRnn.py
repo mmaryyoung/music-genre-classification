@@ -22,7 +22,7 @@ y_holdout = []
 # Target output shape: [batch_size, time_steps, features] 
 
 batch_size = 10000 #how many samples
-time_steps = 1293/12 # per 5 second
+time_steps = 1292/12 # per 5 second
 features = 128
 
 def parseAudio(genreIndex, songIndex, fName):
@@ -71,7 +71,6 @@ def parseAudio(genreIndex, songIndex, fName):
 		y_test.append(oneLabel)
 		# print('x_test: ', len(x_test), len(x_test[0]), len(x_test[0][0]))
 		# print('y_test: ', len(y_test))
-	print("x_train", np.asarray(x_train).shape)	
 	
 	
 
@@ -79,13 +78,14 @@ def parseAudio(genreIndex, songIndex, fName):
 #parseAudio(0,0,'stupid cupid.wav')
 gid = 0
 # CHANGE PATH
-for root, dirs, files in os.walk('/data/hibbslab/jyang/genres'):
+sourcePath = "/data/hibbslab/eherbert/millionSong/"
+for root, dirs, files in os.walk(sourcePath):
 	if '_pickle' not in root and '_img' not in root:
 		sid = 0
 		print(root, gid)
 		for name in files:
 			# CHANGE HERE FOR FILE TYPE
-			if 'wav' in name or 'au' in name:
+			if 'mp3' in name or 'wav' in name or 'au' in name:
 				parseAudio(gid, sid, root + '/' + name)
 				sid +=1
 		if sid != 0:
@@ -98,14 +98,14 @@ x_test = np.asarray(x_test)
 y_test = np.asarray(y_test)
 x_holdout = np.asarray(x_holdout)
 y_holdout = np.asarray(y_holdout)
-print("after")
 print("x_train: ", x_train.shape)
 print("y_train: ", y_train.shape)
 print("x_test: ", x_test.shape)
 print("y_test: ", y_test.shape)
-pickle.dump(x_train, open('/data/hibbslab/jyang/tzanetakis/ver6.0/x_train_mel.p', 'wb'))
-pickle.dump(y_train, open('/data/hibbslab/jyang/tzanetakis/ver6.0/y_train_mel.p', 'wb'))
-pickle.dump(x_test, open('/data/hibbslab/jyang/tzanetakis/ver6.0/x_test_mel.p', 'wb'))
-pickle.dump(y_test, open('/data/hibbslab/jyang/tzanetakis/ver6.0/y_test_mel.p', 'wb'))
-pickle.dump(x_holdout, open('/data/hibbslab/jyang/tzanetakis/ver6.0/x_holdout_mel.p', 'wb'))
-pickle.dump(y_holdout, open('/data/hibbslab/jyang/tzanetakis/ver6.0/y_holdout_mel.p', 'wb'))
+destPath = "/data/hibbslab/jyang/MSD/"
+pickle.dump(x_train, open(destPath + 'x_train_mel.p', 'wb'))
+pickle.dump(y_train, open(destPath + 'y_train_mel.p', 'wb'))
+pickle.dump(x_test, open(destPath + 'x_test_mel.p', 'wb'))
+pickle.dump(y_test, open(destPath + 'y_test_mel.p', 'wb'))
+pickle.dump(x_holdout, open(destPath + 'x_holdout_mel.p', 'wb'))
+pickle.dump(y_holdout, open(destPath + 'y_holdout_mel.p', 'wb'))
