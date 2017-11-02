@@ -156,13 +156,14 @@ with tf.Session() as sess:
                     batchY_placeholder: batchY,
                     init_state: _state
                 })
-
-
+            
+            accuracy = tf.metrics.accuracy(batchY, _prediction)
             loss_list.append(_cross_entropy)
-
-            if batch_idx%100 == 0:
-                print("Step",batch_idx, "Batch loss", _cross_entropy)
-                #plot(loss_list, _predictions_series, batchX, batchY)
+            print("Step",batch_idx, "Batch loss", _cross_entropy, ", Accucacy: ", accuracy)
+            print(_prediction[22, :])
+            print(batchY[22, :])
+            print(batchX[0, 0, :])
+            #plot(loss_list, _predictions_series, batchX, batchY)
 
 plt.ioff()
 plt.show()
