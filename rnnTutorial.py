@@ -160,9 +160,6 @@ with tf.Session() as sess:
             accuracy = tf.metrics.accuracy(batchY, _prediction)
             loss_list.append(_cross_entropy)
             print("Step",batch_idx, "Batch loss", _cross_entropy, ", Accucacy: ", accuracy)
-            print(_prediction[22, :])
-            print(batchY[22, :])
-            print(batchX[0, 0, :])
             #plot(loss_list, _predictions_series, batchX, batchY)
 
 plt.ioff()
