@@ -52,16 +52,15 @@ with open(tagsPath, 'r') as tagsFile:
 			lev1 = trackID[2]
 			lev2 = trackID[3]
 			lev3 = trackID[4]
-            
-            genreRoot = '/data/hibbslab/jyang/msd/genres/' + genre[:-1] + '/'
-            sourcePath = sourceRoot + lev1 + '/' + lev2 + '/' + lev3 + '/' + trackID + '.mp3'
-            destPath = genreRoot + trackID + ".p"
-            
-            if not os.path.isdir(genreRoot):
+			genreRoot = '/data/hibbslab/jyang/msd/genres/' + genre[:-1] + '/'
+			sourcePath = sourceRoot + lev1 + '/' + lev2 + '/' + lev3 + '/' + trackID + '.mp3'
+			destPath = genreRoot + trackID + ".p"
+
+			if not os.path.isdir(genreRoot):
 				os.makedirs(genreRoot)
 			
 			# If the file was not parse and we have a mp3 version
-            if not os.path.isfile(destPath) and  os.path.isfile(sourcePath):
+			if not os.path.isfile(destPath) and  os.path.isfile(sourcePath):
 				parsed = parseAudio(sourcePath)
 				pickle.dump(parsed, open(destPath, "wb"))
 				print("parsed file " + trackID + " as " + genre[:-1])
