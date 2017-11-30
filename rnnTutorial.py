@@ -17,7 +17,8 @@ num_features = 128
 #batch_size = 210
 batch_size = 10
 #num_batches = total_series_length//batch_size//truncated_backprop_length
-num_batches = 1292//truncated_backprop_length
+#num_batches = 1292//truncated_backprop_length
+num_batches = 1292 * 21//truncated_backprop_length
 num_rows = int(210 / batch_size)
 num_layers = 3
 
@@ -29,9 +30,17 @@ def loadData(dataPath):
     #y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
     x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
     y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb')) 
+
+    genres = np.array([[]]*10)
+    tags = np.identity(10, dtype=int)
+
+    for j in range(10):
+        for i in range(len(x_test)):
+            if y_test[i][j] is not 0:
+                genres[j] = np.concatenate((genres[j],x_test[i]*y_test[i][j]))
     # New Config
-    print("x_test: ", x_test.shape)
-    return (x_test, y_test)
+    print( genres.shape(), tags.shape())
+    return (genres, tags)
 
 def generateData():
     x = np.array(np.random.choice(2, total_series_length, p=[0.5, 0.5]))
@@ -142,31 +151,31 @@ with tf.Session() as sess:
         _state = np.zeros((num_layers, 2, batch_size, state_size))
 
         print("New data, epoch", epoch_idx)
-        for row_idx in range(num_rows):
-            start_row = row_idx * batch_size
-            end_row = start_row + batch_size
-            for batch_idx in range(num_batches):
-                start_idx = batch_idx * truncated_backprop_length
-                end_idx = start_idx + truncated_backprop_length
+        # for row_idx in range(num_rows):
+        #     start_row = row_idx * batch_size
+        #     end_row = start_row + batch_size
+        for batch_idx in range(num_batches):
+            start_idx = batch_idx * truncated_backprop_length
+            end_idx = start_idx + truncated_backprop_length
 
-                #batchX = x[:,start_idx:end_idx]
-                #batchX = x[:,start_idx:end_idx, :]
-                batchX = x[start_row:end_row, start_idx:end_idx,:]
-                #batchY = y[:,start_idx:end_idx]
-                #batchY = y
-                batchY = y[start_row:end_row, :]
-                _cross_entropy, _train_step, _state, _prediction = sess.run(
-                    [cross_entropy, train_step, state, prediction],
-                    feed_dict={
-                        batchX_placeholder: batchX,
-                        batchY_placeholder: batchY,
-                        init_state: _state
-                    })
-                
-                accuracy = tf.metrics.accuracy(batchY, _prediction)
-                loss_list.append(_cross_entropy)
-                print("Step",batch_idx, "Batch loss", _cross_entropy)
-                #plot(loss_list, _predictions_series, batchX, batchY)
+            #batchX = x[:,start_idx:end_idx]
+            #batchX = x[:,start_idx:end_idx, :]
+            batchX = x[start_row:end_row, start_idx:end_idx,:]
+            #batchY = y[:,start_idx:end_idx]
+            batchY = y
+            #batchY = y[start_row:end_row, :]
+            _cross_entropy, _train_step, _state, _prediction = sess.run(
+                [cross_entropy, train_step, state, prediction],
+                feed_dict={
+                    batchX_placeholder: batchX,
+                    batchY_placeholder: batchY,
+                    init_state: _state
+                })
+            
+            accuracy = tf.metrics.accuracy(batchY, _prediction)
+            loss_list.append(_cross_entropy)
+            print("Step",batch_idx, "Batch loss", _cross_entropy)
+            #plot(loss_list, _predictions_series, batchX, batchY)
 
 plt.ioff()
 plt.show()
