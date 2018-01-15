@@ -31,16 +31,19 @@ def loadData(dataPath):
     x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
     y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb')) 
 
-    genres = np.array([[]]*10)
+    genres = [np.array([])]*10
     tags = np.identity(10, dtype=int)
 
     for j in range(10):
         for i in range(len(x_test)):
             if y_test[i][j] is not 0:
-                genres[j] = np.concatenate((genres[j],x_test[i]*y_test[i][j]))
+                genres[j] = np.vstack([genres[j],x_test[i]*y_test[i][j]]) if genres[j].size else x_test[i]*y_test[i][j]
     # New Config
-    print( genres.shape(), tags.shape())
+    genres = np.array(genres)
+    print( genres.shape, tags.shape)
     return (genres, tags)
+
+loadData("/data/hibbslab/jyang/tzanetakis/ver6.0/")
 
 def generateData():
     x = np.array(np.random.choice(2, total_series_length, p=[0.5, 0.5]))
@@ -159,8 +162,8 @@ with tf.Session() as sess:
             end_idx = start_idx + truncated_backprop_length
 
             #batchX = x[:,start_idx:end_idx]
-            #batchX = x[:,start_idx:end_idx, :]
-            batchX = x[start_row:end_row, start_idx:end_idx,:]
+            batchX = x[:,start_idx:end_idx, :]
+            #batchX = x[start_row:end_row, start_idx:end_idx,:]
             #batchY = y[:,start_idx:end_idx]
             batchY = y
             #batchY = y[start_row:end_row, :]

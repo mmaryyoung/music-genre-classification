@@ -59,9 +59,9 @@ for root, dirs, files in os.walk(sourceRoot):
 			destPath = destRoot + name[3] + "/" + name[4] + "/" + name[5] + "/"
 			pickle.dump(parsed, open(destPath + os.path.splitext(name)[0] + ".p", "wb"))
 
-pickle.dump(x_train, open(destPath + 'x_train_mel.p', 'wb'))
-pickle.dump(y_train, open(destPath + 'y_train_mel.p', 'wb'))
-pickle.dump(x_test, open(destPath + 'x_test_mel.p', 'wb'))
-pickle.dump(y_test, open(destPath + 'y_test_mel.p', 'wb'))
-pickle.dump(x_holdout, open(destPath + 'x_holdout_mel.p', 'wb'))
-pickle.dump(y_holdout, open(destPath + 'y_holdout_mel.p', 'wb'))
+#pickle.dump(x_train, open(destPath + 'x_train_mel.p', 'wb'))
+#pickle.dump(y_train, open(destPath + 'y_train_mel.p', 'wb'))
+#pickle.dump(x_test, open(destPath + 'x_test_mel.p', 'wb'))
+#pickle.dump(y_test, open(destPath + 'y_test_mel.p', 'wb'))
+#pickle.dump(x_holdout, open(destPath + 'x_holdout_mel.p', 'wb'))
+#pickle.dump(y_holdout, open(destPath + 'y_holdout_mel.p', 'wb'))

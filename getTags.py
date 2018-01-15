@@ -4,6 +4,7 @@ import os.path
 import numpy as np
 import pickle
 import librosa
+import sys
 #from melParseMSD import parseAudio
 
 features = 128
@@ -59,11 +60,11 @@ with open(tagsPath, 'r') as tagsFile:
 			if not os.path.isdir(genreRoot):
 				os.makedirs(genreRoot)
 			
-			# If the file was not parse and we have a mp3 version
+			# If the file was not parsed and we have a mp3 version
 			if not os.path.isfile(destPath) and  os.path.isfile(sourcePath):
 				parsed = parseAudio(sourcePath)
 				pickle.dump(parsed, open(destPath, "wb"))
-				print("parsed file " + trackID + " as " + genre[:-1])
-
+				print("parsed file " + trackID + " as " + genre[:-1]) 
+                sys.stdout.flush()
 
 
