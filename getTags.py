@@ -32,8 +32,10 @@ def parseAudio(fName):
 		if chunks.shape[0]>1292:
 			chunks = chunks[:1292]
 		elif chunks.shape[0] < 1292:
+			# pad it with zeros
 			diff = 1292 - chunks.shape[0]
 			chunks = np.insert(chunks, 0, [[0.0]*128]*diff, axis=0)
+	return chunks
 
 
 
