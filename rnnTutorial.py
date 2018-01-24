@@ -176,9 +176,14 @@ with tf.Session() as sess:
                 })
             
             accuracy = tf.metrics.accuracy(batchY, _prediction)
+            # prediction cmp function with batchY
             loss_list.append(_cross_entropy)
             print("Step",batch_idx, "Batch loss", _cross_entropy)
             #plot(loss_list, _predictions_series, batchX, batchY)
+
+    # _prediction = sess.run([prediction], feed_dict={batchX_placeholder: testX, init_state: _state})
+    # compare _prediction with testY
+
 
 plt.ioff()
 plt.show()
