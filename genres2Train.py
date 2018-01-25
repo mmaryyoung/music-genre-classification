@@ -26,15 +26,15 @@ for root, dirs, files in os.walk(sourcePath):
                 # Current shape should be (1290, 128)
                 song = np.expand_dims(song, axis=2)
                 chunks = [song[x:x+129] for x in range(0, 1290-129, 129)]
-                oneLabel = [0]*10
+                oneLabel = [0]*7
                 oneLabel[genreIdx] = 1
                 if sid < 950:
                     [x_train.append(x) for x in chunks]
-                    [y_train.append(x) for x in [oneLabel]*10]
+                    [y_train.append(x) for x in [oneLabel]*len(chunks)]
                     print "parsed", name, "as training data"
                 else:
                     [x_test.append(x) for x in chunks]
-                    [y_test.append(x) for x in [oneLabel]*10]
+                    [y_test.append(x) for x in [oneLabel]*len(chunks)]
                     print "parsed", name, "as testing data"
                 sid+=1
 
@@ -52,7 +52,7 @@ print y_test.shape
 
 #sPickle.s_dump(x_train, open(destPath + 'x_train.p', 'wb'))
 sPickle.s_dump(y_train, open(destPath + 'y_train.p', 'wb'))
-sPickle.s_dump(x_test, open(destPath + 'x_test.p', 'wb'))
+#sPickle.s_dump(x_test, open(destPath + 'x_test.p', 'wb'))
 sPickle.s_dump(y_test, open(destPath + 'y_test.p', 'wb'))
 
 
