@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import pickle
+import operator
 
 num_epochs = 100
 total_series_length = 50000
@@ -140,6 +141,14 @@ def plot(loss_list, predictions_series, batchX, batchY):
     plt.draw()
     plt.pause(0.0001)
 
+def comp(pred, lbs):
+    correct = 0
+    for i in range(len(pred)):
+        index, value = max(enumerate(pred), key=operator.itemgetter(1))
+        if lbs[index] >0:
+            correct += 1
+    return correct/len(pred)
+
 
 with tf.Session() as sess:
     sess.run(tf.initialize_all_variables())
@@ -175,12 +184,14 @@ with tf.Session() as sess:
                     init_state: _state
                 })
             
-            accuracy = tf.metrics.accuracy(batchY, _prediction)
+            # accuracy = tf.metrics.accuracy(batchY, _prediction)
             # prediction cmp function with batchY
             loss_list.append(_cross_entropy)
             print("Step",batch_idx, "Batch loss", _cross_entropy)
             #plot(loss_list, _predictions_series, batchX, batchY)
-
+        _prediction = sess.run([prediction], feed_dict={batchX_placeholder: testX, init_state: _state})
+        accuracy = comp(_prediction, y)
+        print("accuracy: ", accuracy)
     # _prediction = sess.run([prediction], feed_dict={batchX_placeholder: testX, init_state: _state})
     # compare _prediction with testY
 
