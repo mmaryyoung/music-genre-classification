@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import pickle
 import operator
 
+dataPath = "/data/hibbslab/jyang/tzanetakis/ver6.0/"
+
 num_epochs = 100
 total_series_length = 50000
 #truncated_backprop_length = 15
@@ -26,25 +28,32 @@ num_layers = 3
 def pad(arr):
     return np.append(arr, [0,1,0])
 
-def loadData(dataPath):
-    #x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
-    #y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
-    x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
-    y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb')) 
+def loadData():
+    x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
+    y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
+    #x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
+    #y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb')) 
 
     genres = [np.array([])]*10
     tags = np.identity(10, dtype=int)
 
     for j in range(10):
-        for i in range(len(x_test)):
-            if y_test[i][j] is not 0:
-                genres[j] = np.vstack([genres[j],x_test[i]*y_test[i][j]]) if genres[j].size else x_test[i]*y_test[i][j]
+        for i in range(len(x_train)):
+            if y_train[i][j] is not 0:
+                genres[j] = np.vstack([genres[j],x_train[i]*y_train[i][j]]) if genres[j].size else x_train[i]*y_train[i][j]
     # New Config
     genres = np.array(genres)
     print( genres.shape, tags.shape)
     return (genres, tags)
 
-loadData("/data/hibbslab/jyang/tzanetakis/ver6.0/")
+def loadTest():
+    x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
+    y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb')) 
+    rand1 = random.randint(0, len(x_test) - batch_size - 1)
+    rand2 = random.randint(0, len(x_test[0]) - truncated_backprop_length - 1)
+    rand3 = random.randint(0, len(x_test[0][0]) - num_features - 1)
+    return (x_test[rand1 : rand1 + batch_size, rand2 : rand2 + truncated_backprop_length, rand3 : rand3 + num_features], y_test[rand1:rand1+batch_size])
+
 
 def generateData():
     x = np.array(np.random.choice(2, total_series_length, p=[0.5, 0.5]))
@@ -144,10 +153,10 @@ def plot(loss_list, predictions_series, batchX, batchY):
 def comp(pred, lbs):
     correct = 0
     for i in range(len(pred)):
-        index, value = max(enumerate(pred), key=operator.itemgetter(1))
-        if lbs[index] >0:
+        index, value = max(enumerate(pred[i]), key=operator.itemgetter(1))
+        if lbs[i][index] >0:
             correct += 1
-    return correct/len(pred)
+    return (1.0)*correct/len(pred)
 
 
 with tf.Session() as sess:
@@ -159,7 +168,7 @@ with tf.Session() as sess:
 
     for epoch_idx in range(num_epochs):
         #x,y = generateData()
-        x,y = loadData("/data/hibbslab/jyang/tzanetakis/ver6.0/")
+        x,y = loadData()
         _state = np.zeros((num_layers, 2, batch_size, state_size))
 
         print("New data, epoch", epoch_idx)
@@ -189,8 +198,9 @@ with tf.Session() as sess:
             loss_list.append(_cross_entropy)
             print("Step",batch_idx, "Batch loss", _cross_entropy)
             #plot(loss_list, _predictions_series, batchX, batchY)
+        testX, testY = loadTest()
         _prediction = sess.run([prediction], feed_dict={batchX_placeholder: testX, init_state: _state})
-        accuracy = comp(_prediction, y)
+        accuracy = comp(_prediction, testY)
         print("accuracy: ", accuracy)
     # _prediction = sess.run([prediction], feed_dict={batchX_placeholder: testX, init_state: _state})
     # compare _prediction with testY
