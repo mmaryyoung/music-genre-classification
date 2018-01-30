@@ -60,7 +60,7 @@ def generateData():
     return (x, y)
 
 #batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length])
-batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length, num_features])
+batchX_placeholder = tf.placeholder(tf.float32, [batch_size, None, num_features])
 print("batchX_placeholder shape: ", batchX_placeholder.shape)
 #batchY_placeholder = tf.placeholder(tf.int32, [batch_size, num_classes])
 batchY_placeholder = tf.placeholder(tf.float32, [batch_size, num_classes])
@@ -79,9 +79,9 @@ b2 = tf.Variable(np.zeros((1,num_classes)), dtype=tf.float32)
 
 # Unpack columns
 # inputs_series = tf.split(axis = 1, num_or_size_splits = truncated_backprop_length, value = batchX_placeholder)
-inputs_series = tf.unstack(batchX_placeholder, axis=1)
-labels_series = tf.unstack(batchY_placeholder, axis=1)
-print("inputs_series shape: ", inputs_series[0].get_shape())
+#inputs_series = tf.unstack(batchX_placeholder, axis=1)
+#labels_series = tf.unstack(batchY_placeholder, axis=1)
+#print("inputs_series shape: ", inputs_series[0].get_shape())
 
 # Forward passes
 stacked_rnn = []
