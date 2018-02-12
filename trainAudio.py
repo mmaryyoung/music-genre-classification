@@ -76,8 +76,8 @@ model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
 # initiate RMSprop optimizer
-opt = keras.optimizers.rmsprop(lr=1e-6, decay=1e-8)
-
+opt = keras.optimizers.rmsprop(lr=1e-6, decay=1e-10)
+nadam = keras.optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
 # Let's train the model using RMSprop
 model.compile(loss='categorical_crossentropy',
               optimizer=nadam,

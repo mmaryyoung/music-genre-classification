@@ -37,10 +37,10 @@ def parseAudio(fName):
 	#print(chunks.shape)
 	#Mel for RNN (1292, 128)
 	if chunks.shape != (1292, 128):
-		print(chunks.shape)
 		if chunks.shape[0]>1292:
 			chunks = chunks[:1292]
 		elif chunks.shape[0] < 1292:
+			print(fName, "\t", chunks.shape)
 			diff = 1292 - chunks.shape[0]
 			chunks = np.insert(chunks, 0, [[0.0]*128]*diff, axis=0)
 
@@ -54,10 +54,10 @@ destRoot = "/data/hibbslab/jyang/msd/ver2.0/"
 for root, dirs, files in os.walk(sourceRoot):
 	for name in files:
 		# CHANGE HERE FOR FILE TYPE
-		if 'mp3' in name:
+		if '.mp3' in name:
 			parsed = parseAudio(root + '/' + name)
 			destPath = destRoot + name[3] + "/" + name[4] + "/" + name[5] + "/"
-			pickle.dump(parsed, open(destPath + os.path.splitext(name)[0] + ".p", "wb"))
+			#pickle.dump(parsed, open(destPath + os.path.splitext(name)[0] + ".p", "wb"))
 
 #pickle.dump(x_train, open(destPath + 'x_train_mel.p', 'wb'))
 #pickle.dump(y_train, open(destPath + 'y_train_mel.p', 'wb'))

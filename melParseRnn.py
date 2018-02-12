@@ -102,7 +102,7 @@ print("x_train: ", x_train.shape)
 print("y_train: ", y_train.shape)
 print("x_test: ", x_test.shape)
 print("y_test: ", y_test.shape)
-destPath = "/data/hibbslab/jyang/MSD/"
+destPath = "/data/hibbslab/jyang/msd/ver4.0/"
 pickle.dump(x_train, open(destPath + 'x_train_mel.p', 'wb'))
 pickle.dump(y_train, open(destPath + 'y_train_mel.p', 'wb'))
 pickle.dump(x_test, open(destPath + 'x_test_mel.p', 'wb'))

@@ -4,6 +4,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import pickle
 import operator
+import random
 
 dataPath = "/data/hibbslab/jyang/tzanetakis/ver6.0/"
 
@@ -21,8 +22,8 @@ num_features = 128
 batch_size = 10
 #num_batches = total_series_length//batch_size//truncated_backprop_length
 #num_batches = 1292//truncated_backprop_length
-num_batches = 1292 * 21//truncated_backprop_length
-num_rows = int(210 / batch_size)
+num_batches = 1292 * 50//truncated_backprop_length
+num_rows = int(500 / batch_size)
 num_layers = 3
 
 def pad(arr):
@@ -49,9 +50,9 @@ def loadData():
 def loadTest():
     x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
     y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb')) 
-    rand1 = random.randint(0, len(x_test) - batch_size - 1)
-    rand2 = random.randint(0, len(x_test[0]) - truncated_backprop_length - 1)
-    rand3 = random.randint(0, len(x_test[0][0]) - num_features - 1)
+    rand1 = random.randint(0, len(x_test) - batch_size)
+    rand2 = random.randint(0, len(x_test[0]) - truncated_backprop_length)
+    rand3 = random.randint(0, len(x_test[0][0]) - num_features)
     return (x_test[rand1 : rand1 + batch_size, rand2 : rand2 + truncated_backprop_length, rand3 : rand3 + num_features], y_test[rand1:rand1+batch_size])
 
 
@@ -69,7 +70,7 @@ def generateData():
     return (x, y)
 
 #batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length])
-batchX_placeholder = tf.placeholder(tf.float32, [batch_size, None, num_features])
+batchX_placeholder = tf.placeholder(tf.float32, [batch_size, truncated_backprop_length, num_features])
 print("batchX_placeholder shape: ", batchX_placeholder.shape)
 #batchY_placeholder = tf.placeholder(tf.int32, [batch_size, num_classes])
 batchY_placeholder = tf.placeholder(tf.float32, [batch_size, num_classes])
@@ -151,9 +152,11 @@ def plot(loss_list, predictions_series, batchX, batchY):
     plt.pause(0.0001)
 
 def comp(pred, lbs):
+    print(pred)
     correct = 0
     for i in range(len(pred)):
-        index, value = max(enumerate(pred[i]), key=operator.itemgetter(1))
+        index = np.argmax(pred[i])
+        print("index: ", index)
         if lbs[i][index] >0:
             correct += 1
     return (1.0)*correct/len(pred)
@@ -196,12 +199,15 @@ with tf.Session() as sess:
             # accuracy = tf.metrics.accuracy(batchY, _prediction)
             # prediction cmp function with batchY
             loss_list.append(_cross_entropy)
-            print("Step",batch_idx, "Batch loss", _cross_entropy)
+            if batch_idx%10 == 0:
+                print("Step",batch_idx, "Batch loss", _cross_entropy)
             #plot(loss_list, _predictions_series, batchX, batchY)
         testX, testY = loadTest()
         _prediction = sess.run([prediction], feed_dict={batchX_placeholder: testX, init_state: _state})
-        accuracy = comp(_prediction, testY)
+        # apparently _prediction is of shape (1, batch_size, genres)
+        accuracy = comp(_prediction[0], testY)
         print("accuracy: ", accuracy)
+        print(sess.run(weight))
     # _prediction = sess.run([prediction], feed_dict={batchX_placeholder: testX, init_state: _state})
     # compare _prediction with testY
 
