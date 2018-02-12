@@ -9,7 +9,7 @@ import sys
 
 features = 128
 
-def parseAudio(fName):
+def parseAudio(fName, destPath):
 	y, sr = librosa.load(fName)
 	# CHANGE HERE
 	audioLength = 30*sr
@@ -32,10 +32,13 @@ def parseAudio(fName):
 		if chunks.shape[0]>1292:
 			chunks = chunks[:1292]
 		elif chunks.shape[0] < 1292:
+			os.remove(destPath)
+			print("removed ", destPath)
 			# pad it with zeros
 			diff = 1292 - chunks.shape[0]
 			chunks = np.insert(chunks, 0, [[0.0]*128]*diff, axis=0)
-	return chunks
+	# TEMPERARYLY REMOVING THE FOLLOWING LINE FOR ELIMINATING MISFITS
+	#return chunks
 
 
 
@@ -64,9 +67,10 @@ with open(tagsPath, 'r') as tagsFile:
 			
 			# If the file was not parsed and we have a mp3 version
 			if not os.path.isfile(destPath) and  os.path.isfile(sourcePath):
-				parsed = parseAudio(sourcePath)
-				pickle.dump(parsed, open(destPath, "wb"))
-				print("parsed file " + trackID + " as " + genre[:-1]) 
+				parsed = parseAudio(sourcePath, destPath)
+				# TEMPERORARYLY COMMENTING OUT THE FOLLOWING TWO LINES TO ELIMINATE MISFITS
+				#pickle.dump(parsed, open(destPath, "wb"))
+				#print("parsed file " + trackID + " as " + genre[:-1]) 
                 sys.stdout.flush()
 
 
