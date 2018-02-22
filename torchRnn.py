@@ -8,8 +8,8 @@ import random
 
 
 sourceRoot = "/data/hibbslab/jyang/tzanetakis/ver6.0/"
-x_train = pickle.load(open(sourceRoot+"x_train.p", "rb"))
-y_train = pickle.load(open(sourceRoot+"y_train.p", "rb"))
+x_train = pickle.load(open(sourceRoot+"x_train_mel.p", "rb"))
+y_train = pickle.load(open(sourceRoot+"y_train_mel.p", "rb"))
 
 x_train = torch.from_numpy(x_train)
 y_train = torch.from_numpy(y_train)
@@ -26,10 +26,11 @@ def randomTrainingExample():
     
     idx = random.randint(0, x_train_shape[0]-1)
     jdx = random.randint(0, x_train_shape[1]-sample_length-1)
-    song_tensor = x_train[idx][jdx:jdx+sample_length].unsqueeze(1)
-    genre_tensor = y_train[idx]
-    song = "song" + idx
-    genre = all_genres[torch.nonzero(genre_tensor)[0][0]]
+    song_tensor = Variable(x_train[idx][jdx:jdx+sample_length].unsqueeze(1))
+    genre_idx = torch.nonzero(y_train[idx])[0][0]
+    song = "song" + str(idx)
+    genre = all_genres[genre_idx]
+    genre_tensor = Variable(torch.LongTensor([genre_idx]))
     return genre, song, genre_tensor, song_tensor
 
 ########## CREATING THE NETWORK ##########
@@ -46,7 +47,7 @@ class RNN(nn.Module):
 
         self.i2h = nn.Linear(input_size + hidden_size, hidden_size)
         self.i2o = nn.Linear(input_size + hidden_size, output_size)
-        self.softmax = nn.LogSoftmax(dim=1)
+        self.softmax = nn.LogSoftmax()
 
     def forward(self, input, hidden):
         combined = torch.cat((input, hidden), 1)
@@ -59,7 +60,7 @@ class RNN(nn.Module):
         return Variable(torch.zeros(1, self.hidden_size))
 
 # CHANGE HERE
-n_hidden = 128
+n_hidden = 144
 rnn = RNN(n_features, n_hidden, n_genres)
 
 
@@ -117,17 +118,21 @@ def timeSince(since):
     return '%dm %ds' % (m, s)
 
 start = time.time()
-
+right_count = 0
 for iter in range(1, n_iters + 1):
     category, line, category_tensor, line_tensor = randomTrainingExample()
     output, loss = train(category_tensor, line_tensor)
     current_loss += loss
 
+    guess, guess_i = genreFromOutput(output)
+    righton = False
+    if guess == category:
+        righton = True
+        right_count += 1
     # Print iter number, loss, name and guess
     if iter % print_every == 0:
-        guess, guess_i = genreFromOutput(output)
-        correct = '✓' if guess == category else '✗ (%s)' % category
-        print('%d %d%% (%s) %.4f %s / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, line, guess, correct))
+        correct = '✓' if righton else '✗ (%s)' % category
+        print('%d %d%% (%s) %.4f %s / %s %s' % (iter, float(right_count) / iters * 100, timeSince(start), loss, line, guess, correct))
 
     # Add current loss avg to list of losses
     if iter % plot_every == 0:
