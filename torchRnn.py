@@ -179,7 +179,7 @@ for iter in range(1, n_iters + 1):
         all_losses.append(current_loss / plot_every)
         current_loss = 0
 
-torch.save(rnn, "/Users/mac/Desktop/nameModel.m")
+torch.save(rnn.state_dict(), "./nameModel.m")
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -250,5 +250,5 @@ def predict(input_line, n_predictions=3):
 
 predict('Dovesky')
 predict('Jackson')
-predict('Hanson')
+predict('Hansen')
 predict('Sun')
