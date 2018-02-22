@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 sourcePath = "/data/hibbslab/jyang/msd/genres/"
-destPath = "/data/hibbslab/jyang/msd/ver3.0/"
+destPath = "/data/hibbslab/jyang/msd/ver4.0/"
 
 x_train = []
 y_train = []
@@ -43,16 +43,21 @@ y_train = np.asarray(y_train)
 x_test = np.asarray(x_test)
 y_test = np.asarray(y_test)
 
-print "done parsing, final shapes are"
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
+x_train /= np.amax(x_train)
+x_test /= np.amax(x_test)
+
+print "done parsing and normalizing, final shapes are"
 
 print x_train.shape
 print y_train.shape
 print x_test.shape
 print y_test.shape
 
-#sPickle.s_dump(x_train, open(destPath + 'x_train.p', 'wb'))
+sPickle.s_dump(x_train, open(destPath + 'x_train.p', 'wb'))
 sPickle.s_dump(y_train, open(destPath + 'y_train.p', 'wb'))
-#sPickle.s_dump(x_test, open(destPath + 'x_test.p', 'wb'))
+sPickle.s_dump(x_test, open(destPath + 'x_test.p', 'wb'))
 sPickle.s_dump(y_test, open(destPath + 'y_test.p', 'wb'))
 
 

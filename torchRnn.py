@@ -79,7 +79,7 @@ class RNN(nn.Module):
 
         self.i2h = nn.Linear(input_size + hidden_size, hidden_size)
         self.i2o = nn.Linear(input_size + hidden_size, output_size)
-        self.softmax = nn.LogSoftmax(dim=1)
+        self.softmax = nn.LogSoftmax()
 
     def forward(self, input, hidden):
         combined = torch.cat((input, hidden), 1)
@@ -186,7 +186,7 @@ import matplotlib.ticker as ticker
 
 plt.figure()
 plt.plot(all_losses)
-plt.show()
+#plt.show()
 
 
 ########## EVALUATING THE RESULTS ##########
@@ -230,7 +230,7 @@ ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 
 # sphinx_gallery_thumbnail_number = 2
-plt.show()
+#plt.show()
 
 
 ########## RUNNING ON USER INPUT ##########
