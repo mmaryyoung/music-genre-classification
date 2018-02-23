@@ -11,27 +11,31 @@ sourceRoot = "/data/hibbslab/jyang/tzanetakis/ver6.0/"
 x_train = pickle.load(open(sourceRoot+"x_train_mel.p", "rb"))
 y_train = pickle.load(open(sourceRoot+"y_train_mel.p", "rb"))
 
-x_train = torch.from_numpy(x_train)
-y_train = torch.from_numpy(y_train)
+#x_train = torch.from_numpy(x_train)
+#y_train = torch.from_numpy(y_train)
 
-x_train_shape = list(x_train.size())
+#x_train_shape = list(x_train.size())
 
 # 5 sec out of 30 sec, a sixth
 all_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
 n_genres = len(all_genres)
-n_features = x_train_shape[2]
-sample_length = x_train_shape[1]//6
+n_features = x_train.shape[2]
+sample_length = x_train.shape[1]//6
+
+batch_size = 50
 
 def randomTrainingExample():
     
-    idx = random.randint(0, x_train_shape[0]-1)
-    jdx = random.randint(0, x_train_shape[1]-sample_length-1)
-    song_tensor = Variable(x_train[idx][jdx:jdx+sample_length].unsqueeze(1))
-    genre_idx = torch.nonzero(y_train[idx])[0][0]
-    song = "song" + str(idx)
-    genre = all_genres[genre_idx]
-    genre_tensor = Variable(torch.LongTensor([genre_idx]))
-    return genre, song, genre_tensor, song_tensor
+    idx = random.randint(0, x_train_shape[0] - batch_size - 1)
+    jdx = random.randint(0, x_train_shape[1] - sample_length - 1)
+    song_tensor = np.swapaxes(x_train[idx:idx+batch_size, jdx:jdx+sample_length], 0,1)
+    song_tensor = Variable(torch.from_numpy(song_tensor))
+
+    genre_tensor = torch.nonzero(torch.from_numpy(y_train[idx]))[:,1]
+
+    song1 = "song" + str(idx)
+    genre1 = all_genres[genre_tensor[0]]
+    return genre1, song1, genre_tensor, song_tensor
 
 ########## CREATING THE NETWORK ##########
 
@@ -47,7 +51,7 @@ class RNN(nn.Module):
 
         self.i2h = nn.Linear(input_size + hidden_size, hidden_size)
         self.i2o = nn.Linear(input_size + hidden_size, output_size)
-        self.softmax = nn.LogSoftmax()
+        self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, input, hidden):
         combined = torch.cat((input, hidden), 1)
@@ -57,7 +61,7 @@ class RNN(nn.Module):
         return output, hidden
 
     def initHidden(self):
-        return Variable(torch.zeros(1, self.hidden_size))
+        return Variable(torch.zeros(batch_size, self.hidden_size))
 
 # CHANGE HERE
 n_hidden = 144
