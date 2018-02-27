@@ -26,15 +26,14 @@ batch_size = 50
 
 def randomTrainingExample():
     
-    idx = random.randint(0, x_train_shape[0] - batch_size - 1)
-    jdx = random.randint(0, x_train_shape[1] - sample_length - 1)
+    idx = random.randint(0, x_train.shape[0] - batch_size - 1)
+    jdx = random.randint(0, x_train.shape[1] - sample_length - 1)
     song_tensor = np.swapaxes(x_train[idx:idx+batch_size, jdx:jdx+sample_length], 0,1)
     song_tensor = Variable(torch.from_numpy(song_tensor))
-
-    genre_tensor = torch.nonzero(torch.from_numpy(y_train[idx]))[:,1]
-
+    genre_tensor = torch.nonzero(torch.from_numpy(y_train[idx:idx+batch_size]))[:,1]
     song1 = "song" + str(idx)
     genre1 = all_genres[genre_tensor[0]]
+    genre_tensor = Variable(genre_tensor)
     return genre1, song1, genre_tensor, song_tensor
 
 ########## CREATING THE NETWORK ##########
