@@ -31,10 +31,12 @@ def randomTrainingExample():
     song_tensor = np.swapaxes(x_train[idx:idx+batch_size, jdx:jdx+sample_length], 0,1)
     song_tensor = Variable(torch.from_numpy(song_tensor))
     genre_tensor = torch.nonzero(torch.from_numpy(y_train[idx:idx+batch_size]))[:,1]
-    song1 = "song" + str(idx)
-    genre1 = all_genres[genre_tensor[0]]
+    songs = ["song" + str(x) for x in range(idx, idx+batch_size)]
+    genres = [all_genres[x] for x in genre_tensor]
+    #song1 = "song" + str(idx)
+    #genre1 = all_genres[genre_tensor[0]]
     genre_tensor = Variable(genre_tensor)
-    return genre1, song1, genre_tensor, song_tensor
+    return genres, songs, genre_tensor, song_tensor
 
 ########## CREATING THE NETWORK ##########
 
@@ -70,12 +72,14 @@ rnn = RNN(n_features, n_hidden, n_genres)
 ########## PREPARE FOR TRAINING ##########
 def genreFromOutput(output):
     top_n, top_i = output.data.topk(1) # Tensor out of Variable with .data
-    genre_i = top_i[0][0]
-    return all_genres[genre_i], genre_i
+    #genre_i = top_i[0][0]
+    genre_is = top_i[:,0]
+    genres = [all_genres[x] for x in genre_is]
+    return genres, genre_is
 
 for i in range(10):
-    genre, song, genre_tensor, song_tensor = randomTrainingExample()
-    print('genre =', genre, '/ song =', song)
+    genres, songs, genre_tensor, song_tensor = randomTrainingExample()
+    print('genre0 =', genres[0], '/ song0 =', songs[0])
 
 ########## TRAINING THE NETWORK ##########
 criterion = nn.NLLLoss()
@@ -96,7 +100,8 @@ def train(category_tensor, line_tensor):
     for p in rnn.parameters():
         p.data.add_(-learning_rate, p.grad.data)
 
-    return output, loss.data[0]
+    # changed here so that the printing loss is an average
+    return output, torch.mean(loss.data)
 
 ########## PLOTTING THE RESULTS ##########
 
@@ -123,19 +128,23 @@ def timeSince(since):
 start = time.time()
 right_count = 0
 for iter in range(1, n_iters + 1):
-    category, line, category_tensor, line_tensor = randomTrainingExample()
+    categories, lines, category_tensor, line_tensor = randomTrainingExample()
     output, loss = train(category_tensor, line_tensor)
     current_loss += loss
 
-    guess, guess_i = genreFromOutput(output)
+    guesses, guess_is = genreFromOutput(output)
     righton = False
-    if guess == category:
-        righton = True
-        right_count += 1
+
+    for i in range(batch_size):
+        if categories[i] == guesses[i]:
+            right_count += 1
+            # as long as one in the batch is correct
+            righton = True
+
     # Print iter number, loss, name and guess
     if iter % print_every == 0:
         correct = '✓' if righton else '✗ (%s)' % category
-        print('%d %d%% (%s) %.4f %s / %s %s' % (iter, float(right_count) / iter * 100, timeSince(start), loss, line, guess, correct))
+        print('%d %d%% (%s) %.4f %s / %s %s' % (iter, float(right_count) / iter * batch_size* 100, timeSince(start), loss, line, guess, correct))
 
     # Add current loss avg to list of losses
     if iter % plot_every == 0:
