@@ -132,7 +132,6 @@ def accuracy(output, genre_tensor):
 
 start = time.time()
 right_count = 0.0
-last_v_loss = float('inf')
 for iter in range(1, n_iters + 1):
     categories, lines, category_tensor, line_tensor = randomExample(x_train, y_train)
     output, loss = train(category_tensor, line_tensor)
@@ -143,17 +142,11 @@ for iter in range(1, n_iters + 1):
     
     # Print iter number, loss, name and guess
     if iter % print_every == 0:
-        correct = '✓' if iterAcc > 0.5 else '✗ (%s)' % categories[0]
+        correct = '✓' if iterAcc > 0.5 else '✗' 
         v_genres, v_songs, v_genre_tensor, v_song_tensor = randomExample(x_test, y_test)
         v_output, v_loss = train(v_genre_tensor, v_song_tensor)
         v_acc = accuracy(v_output, v_genre_tensor.data)
-        print('%d %.2f%% (%s) %.4f %s / %s %s, validation accuracy %.2f' % (iter, float(right_count) / iter * 100, timeSince(start), loss, lines[0], guesses[0], correct, v_acc))
-        if v_loss > last_v_loss:
-            print("loss stopped decreasing, from ", last_v_loss, " to ", v_loss)
-            break;
-        else:
-            last_v_loss = v_loss
-            n_iters += print_every
+        print('%d %.2f%% (%s) %.4f %s / %s, v_acc %.2f%%, loss %.2f' % (iter, float(right_count) / iter * 100, timeSince(start), loss, lines[0], correct, v_acc*100, v_loss))
         sys.stdout.flush()
 
     # Add current loss avg to list of losses
@@ -174,7 +167,7 @@ plt.savefig('loss_trend.png')
 
 ########## EVALUATING THE RESULTS ##########
 # Keep track of correct guesses in a confusion matrix
-confusion = torch.zeros(n_categories, n_categories)
+confusion = torch.zeros(n_genres, n_genres)
 n_confusion = 10000
 
 def evaluate(song_tensor):
@@ -189,11 +182,11 @@ def evaluate(song_tensor):
 for i in range(n_confusion):
     genres, songs, genre_tensor, song_tensor = randomExample(x_test, y_test)
     outputs = evaluate(song_tensor)
-    guesses, guess_is = categoryFromOutput(outputs)
+    guesses, guess_is = genreFromOutput(outputs)
     for j in range(batch_size):
         confusion[genre_tensor.data[j]][guess_is[j]] += 1
 # Normalize by dividing every row by its sum
-for i in range(n_categories):
+for i in range(n_genres):
     confusion[i] = confusion[i] / confusion[i].sum()
 
 # Set up plot
