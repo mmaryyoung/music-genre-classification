@@ -10,11 +10,9 @@ import random
 sourceRoot = "/data/hibbslab/jyang/tzanetakis/ver6.0/"
 x_train = pickle.load(open(sourceRoot+"x_train_mel.p", "rb"))
 y_train = pickle.load(open(sourceRoot+"y_train_mel.p", "rb"))
+x_test = pickle.load(open(sourceRoot+"x_test_mel.p", "rb"))
+y_test = pickle.load(open(sourceRoot+"y_test_mel.p", "rb"))
 
-#x_train = torch.from_numpy(x_train)
-#y_train = torch.from_numpy(y_train)
-
-#x_train_shape = list(x_train.size())
 
 # 5 sec out of 30 sec, a sixth
 all_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
@@ -24,13 +22,12 @@ sample_length = x_train.shape[1]//6
 
 batch_size = 50
 
-def randomTrainingExample():
-    
-    idx = random.randint(0, x_train.shape[0] - batch_size - 1)
-    jdx = random.randint(0, x_train.shape[1] - sample_length - 1)
-    song_tensor = np.swapaxes(x_train[idx:idx+batch_size, jdx:jdx+sample_length], 0,1)
+def randomExample(x_target, y_target):
+    idx = random.randint(0, x_target.shape[0] - batch_size - 1)
+    jdx = random.randint(0, x_target.shape[1] - sample_length - 1)
+    song_tensor = np.swapaxes(x_target[idx:idx+batch_size, jdx:jdx+sample_length], 0,1)
     song_tensor = Variable(torch.from_numpy(song_tensor))
-    genre_tensor = torch.nonzero(torch.from_numpy(y_train[idx:idx+batch_size]))[:,1]
+    genre_tensor = torch.nonzero(torch.from_numpy(y_target[idx:idx+batch_size]))[:,1]
     songs = ["song" + str(x) for x in range(idx, idx+batch_size)]
     genres = [all_genres[x] for x in genre_tensor]
     #song1 = "song" + str(idx)
@@ -78,7 +75,7 @@ def genreFromOutput(output):
     return genres, genre_is
 
 for i in range(10):
-    genres, songs, genre_tensor, song_tensor = randomTrainingExample()
+    genres, songs, genre_tensor, song_tensor = randomExample(x_train, y_train)
     print('genre0 =', genres[0], '/ song0 =', songs[0])
 
 ########## TRAINING THE NETWORK ##########
@@ -125,26 +122,38 @@ def timeSince(since):
     s -= m * 60
     return '%dm %ds' % (m, s)
 
+def accuracy(output, genre_tensor):
+    count = 0
+    guesses, guess_is = genreFromOutput(output)
+    for i in range(batch_size):
+        if genre_tensor[i] == guess_is[i]:
+            count += 1
+    return float(count)/batch_size
+
 start = time.time()
-right_count = 0
+right_count = 0.0
+last_v_loss = float('inf')
 for iter in range(1, n_iters + 1):
-    categories, lines, category_tensor, line_tensor = randomTrainingExample()
+    categories, lines, category_tensor, line_tensor = randomExample(x_train, y_train)
     output, loss = train(category_tensor, line_tensor)
     current_loss += loss
 
-    guesses, guess_is = genreFromOutput(output)
-    righton = False
-
-    for i in range(batch_size):
-        if categories[i] == guesses[i]:
-            right_count += 1
-            # as long as one in the batch is correct
-            righton = True
-
+    iterAcc = accuracy(output, category_tensor)
+    right_count += iterAcc
+    
     # Print iter number, loss, name and guess
     if iter % print_every == 0:
-        correct = '✓' if righton else '✗ (%s)' % category
-        print('%d %d%% (%s) %.4f %s / %s %s' % (iter, float(right_count) / iter / batch_size* 100, timeSince(start), loss, lines[0], guesses[0], correct))
+        correct = '✓' if iterAcc > 0.5 else '✗ (%s)' % category
+        v_genres, v_songs, v_genre_tensor, v_song_tensor = randomExample(x_test, y_test)
+        v_output, v_loss = train(v_genre_tensor, v_song_tensor)
+        v_acc = accuracy(v_output, v_genre_tensor)
+        print('%d %.2f%% (%s) %.4f %s / %s %s, validation accuracy %.2f' % (iter, float(right_count) / iter * 100, timeSince(start), loss, lines[0], guesses[0], correct, v_acc))
+        if v_loss > last_v_loss:
+            print("loss stopped decreasing, from ", last_v_loss, " to ", v_loss)
+            break;
+        else:
+            last_v_loss = v_loss
+            n_iters += print_every
 
     # Add current loss avg to list of losses
     if iter % plot_every == 0:
