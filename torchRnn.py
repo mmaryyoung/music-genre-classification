@@ -143,7 +143,7 @@ for iter in range(1, n_iters + 1):
     
     # Print iter number, loss, name and guess
     if iter % print_every == 0:
-        correct = '✓' if iterAcc > 0.5 else '✗ (%s)' % category
+        correct = '✓' if iterAcc > 0.5 else '✗ (%s)' % categories[0]
         v_genres, v_songs, v_genre_tensor, v_song_tensor = randomExample(x_test, y_test)
         v_output, v_loss = train(v_genre_tensor, v_song_tensor)
         v_acc = accuracy(v_output, v_genre_tensor.data)
