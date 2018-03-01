@@ -5,7 +5,7 @@ import pickle
 import numpy as np
 import torch
 import random
-
+import sys
 
 sourceRoot = "/data/hibbslab/jyang/tzanetakis/ver6.0/"
 x_train = pickle.load(open(sourceRoot+"x_train_mel.p", "rb"))
@@ -138,7 +138,7 @@ for iter in range(1, n_iters + 1):
     output, loss = train(category_tensor, line_tensor)
     current_loss += loss
 
-    iterAcc = accuracy(output, category_tensor)
+    iterAcc = accuracy(output, category_tensor.data)
     right_count += iterAcc
     
     # Print iter number, loss, name and guess
@@ -146,7 +146,7 @@ for iter in range(1, n_iters + 1):
         correct = '✓' if iterAcc > 0.5 else '✗ (%s)' % category
         v_genres, v_songs, v_genre_tensor, v_song_tensor = randomExample(x_test, y_test)
         v_output, v_loss = train(v_genre_tensor, v_song_tensor)
-        v_acc = accuracy(v_output, v_genre_tensor)
+        v_acc = accuracy(v_output, v_genre_tensor.data)
         print('%d %.2f%% (%s) %.4f %s / %s %s, validation accuracy %.2f' % (iter, float(right_count) / iter * 100, timeSince(start), loss, lines[0], guesses[0], correct, v_acc))
         if v_loss > last_v_loss:
             print("loss stopped decreasing, from ", last_v_loss, " to ", v_loss)
@@ -154,6 +154,7 @@ for iter in range(1, n_iters + 1):
         else:
             last_v_loss = v_loss
             n_iters += print_every
+        sys.stdout.flush()
 
     # Add current loss avg to list of losses
     if iter % plot_every == 0:
