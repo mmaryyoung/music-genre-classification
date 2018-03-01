@@ -161,5 +161,56 @@ for iter in range(1, n_iters + 1):
         all_losses.append(current_loss / plot_every)
         current_loss = 0
 
-#torch.save(rnn.state_dict(), "./nameModel.m")
+torch.save(rnn.state_dict(), "musicModel.m")
+
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+from matplotlib import ticker as ticker
+
+plt.figure()
+plt.plot(all_losses)
+plt.savefig('loss_trend.png')
+
+########## EVALUATING THE RESULTS ##########
+# Keep track of correct guesses in a confusion matrix
+confusion = torch.zeros(n_categories, n_categories)
+n_confusion = 10000
+
+def evaluate(song_tensor):
+    hidden = rnn.initHidden()
+
+    for i in range(line_tensor.size()[0]):
+        output, hidden = rnn(song_tensor[i], hidden)
+
+    return output
+
+# Go through a bunch of examples and record which are correctly guessed
+for i in range(n_confusion):
+    genres, songs, genre_tensor, song_tensor = randomExample(x_test, y_test)
+    outputs = evaluate(song_tensor)
+    guesses, guess_is = categoryFromOutput(outputs)
+    for j in range(batch_size):
+        confusion[genre_tensor.data[j]][guess_is[j]] += 1
+# Normalize by dividing every row by its sum
+for i in range(n_categories):
+    confusion[i] = confusion[i] / confusion[i].sum()
+
+# Set up plot
+fig = plt.figure()
+ax = fig.add_subplot(111)
+cax = ax.matshow(confusion.numpy())
+fig.colorbar(cax)
+
+# Set up axes
+ax.set_xticklabels([''] + all_categories, rotation=90)
+ax.set_yticklabels([''] + all_categories)
+
+# Force label at every tick
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+
+plt.savefig('grid.png')
+
+
 
