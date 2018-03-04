@@ -7,6 +7,18 @@ import torch
 import random
 import sys
 
+import torch.nn as nn
+from torch.autograd import Variable
+
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+from matplotlib import ticker as ticker
+
+import time
+import math
+
+
 sourceRoot = "/data/hibbslab/jyang/tzanetakis/ver6.0/"
 x_train = pickle.load(open(sourceRoot+"x_train_mel.p", "rb"))
 y_train = pickle.load(open(sourceRoot+"y_train_mel.p", "rb"))
@@ -35,11 +47,15 @@ def randomExample(x_target, y_target):
     genre_tensor = Variable(genre_tensor)
     return genres, songs, genre_tensor, song_tensor
 
+def genreFromOutput(output):
+    top_n, top_i = output.data.topk(1) # Tensor out of Variable with .data
+    #genre_i = top_i[0][0]
+    genre_is = top_i[:,0]
+    genres = [all_genres[x] for x in genre_is]
+    return genres, genre_is
+
+
 ########## CREATING THE NETWORK ##########
-
-
-import torch.nn as nn
-from torch.autograd import Variable
 
 class RNN(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
@@ -61,59 +77,28 @@ class RNN(nn.Module):
     def initHidden(self):
         return Variable(torch.zeros(batch_size, self.hidden_size))
 
-# CHANGE HERE
+########## PARAMETERS AND SETUPS##########
+
 n_hidden = 144
-rnn = RNN(n_features, n_hidden, n_genres)
-
-
-########## PREPARE FOR TRAINING ##########
-def genreFromOutput(output):
-    top_n, top_i = output.data.topk(1) # Tensor out of Variable with .data
-    #genre_i = top_i[0][0]
-    genre_is = top_i[:,0]
-    genres = [all_genres[x] for x in genre_is]
-    return genres, genre_is
-
-for i in range(10):
-    genres, songs, genre_tensor, song_tensor = randomExample(x_train, y_train)
-    print('genre0 =', genres[0], '/ song0 =', songs[0])
-
-########## TRAINING THE NETWORK ##########
-criterion = nn.NLLLoss()
-learning_rate = 0.005 # If you set this too high, it might explode. If too low, it might not learn
-
-def train(category_tensor, line_tensor):
-    hidden = rnn.initHidden()
-
-    rnn.zero_grad()
-
-    for i in range(line_tensor.size()[0]):
-        output, hidden = rnn(line_tensor[i], hidden)
-
-    loss = criterion(output, category_tensor)
-    loss.backward()
-
-    # Add parameters' gradients to their values, multiplied by learning rate
-    for p in rnn.parameters():
-        p.data.add_(-learning_rate, p.grad.data)
-
-    # changed here so that the printing loss is an average
-    return output, torch.mean(loss.data)
-
-########## PLOTTING THE RESULTS ##########
-
-import time
-import math
 
 n_iters = 100000
 print_every = 5000
 plot_every = 1000
 
-
-
 # Keep track of losses for plotting
 current_loss = 0
 all_losses = []
+
+learning_rate = 0.005
+criterion = nn.NLLLoss()
+
+rnn = RNN(n_features, n_hidden, n_genres)
+
+# Keep track of correct guesses in a confusion matrix
+confusion = torch.zeros(n_genres, n_genres)
+n_confusion = 10000
+
+########## HELPER FUNCTIONS ##########
 
 def timeSince(since):
     now = time.time()
@@ -122,31 +107,71 @@ def timeSince(since):
     s -= m * 60
     return '%dm %ds' % (m, s)
 
-def accuracy(output, genre_tensor):
+def accuracy(outputs, genre_tensor):
     count = 0
-    guesses, guess_is = genreFromOutput(output)
+    guesses, guess_is = genreFromOutput(outputs)
     for i in range(batch_size):
         if genre_tensor[i] == guess_is[i]:
             count += 1
     return float(count)/batch_size
 
+def evaluate(song_tensor):
+    hidden = rnn.initHidden()
+
+    for i in range(song_tensor.size()[0]):
+        outputs, hidden = rnn(song_tensor[i], hidden)
+
+    return outputs
+
+def validate():
+    losses = []
+    accuracies = []
+    for i in range(0, x_test.shape[0] - batch_size, batch_size):
+        for j in range(0, x_test.shape[1] - sample_length, sample_length):
+            song_tensor = Variable(torch.from_numpy(np.swapaxes(x_test[i:i+batch_size, j:j+sample_length],0,1)))
+            genre_tensor = torch.nonzero(torch.from_numpy(y_target[i:i+batch_size]))[:,1]
+            outputs = evaluate(song_tensor)
+            losses.append(torch.mean(criterion(outputs, genre_tensor).data))
+            accuracies.append(accuracy(outputs, genre_tensor))
+            guesses, guess_is = genreFromOutput(outputs)
+            for k in range(batch_size):
+                confusion[genre_tensor.data[k]][guess_is[k]] += 1;
+    for i in range(n_genres):
+        confusion[i] = confusion[i] / confusion[i].sum()        
+    return np.mean(losses), np.mean(accuracies)
+
+
+def train(genre_tensor, song_tensor):
+    outputs  = evaluate(song_tensor)
+
+    loss = criterion(outputs, genre_tensor)
+    loss.backward()
+
+    # Add parameters' gradients to their values, multiplied by learning rate
+    for p in rnn.parameters():
+        p.data.add_(-learning_rate, p.grad.data)
+
+    # changed here so that the printing loss is an average
+    return outputs, torch.mean(loss.data)
+
+########## ACTUAL TRAINING LOOP ###########
+
 start = time.time()
 right_count = 0.0
 for iter in range(1, n_iters + 1):
-    categories, lines, category_tensor, line_tensor = randomExample(x_train, y_train)
-    output, loss = train(category_tensor, line_tensor)
+    genres, songs, genre_tensor, song_tensor = randomExample(x_train, y_train)
+    outputs, loss = train(genre_tensor, song_tensor)
     current_loss += loss
 
-    iterAcc = accuracy(output, category_tensor.data)
+    iterAcc = accuracy(outputs, genre_tensor.data)
     right_count += iterAcc
     
     # Print iter number, loss, name and guess
     if iter % print_every == 0:
         correct = '✓' if iterAcc > 0.5 else '✗' 
-        v_genres, v_songs, v_genre_tensor, v_song_tensor = randomExample(x_test, y_test)
-        v_output, v_loss = train(v_genre_tensor, v_song_tensor)
-        v_acc = accuracy(v_output, v_genre_tensor.data)
-        print('%d %.2f%% (%s) %.4f %s / %s, v_acc %.2f%%, loss %.2f' % (iter, float(right_count) / iter * 100, timeSince(start), loss, lines[0], correct, v_acc*100, v_loss))
+        overall_acc = right_count/iter 
+        v_loss, v_acc = validate()
+        print('%d %.2f%% %.2f%% (%s) %.4f %s / %s, v_acc %.2f%%, loss %.2f' % (iter, overall_acc*100, iterAcc*100, timeSince(start), loss, songs[0], correct, v_acc*100, v_loss))
         sys.stdout.flush()
 
     # Add current loss avg to list of losses
@@ -156,38 +181,12 @@ for iter in range(1, n_iters + 1):
 
 torch.save(rnn.state_dict(), "musicModel.m")
 
-import matplotlib
-matplotlib.use('Agg')
-from matplotlib import pyplot as plt
-from matplotlib import ticker as ticker
 
+########## PLOTTING #############
 plt.figure()
 plt.plot(all_losses)
 plt.savefig('loss_trend.png')
 
-########## EVALUATING THE RESULTS ##########
-# Keep track of correct guesses in a confusion matrix
-confusion = torch.zeros(n_genres, n_genres)
-n_confusion = 10000
-
-def evaluate(song_tensor):
-    hidden = rnn.initHidden()
-
-    for i in range(line_tensor.size()[0]):
-        output, hidden = rnn(song_tensor[i], hidden)
-
-    return output
-
-# Go through a bunch of examples and record which are correctly guessed
-for i in range(n_confusion):
-    genres, songs, genre_tensor, song_tensor = randomExample(x_test, y_test)
-    outputs = evaluate(song_tensor)
-    guesses, guess_is = genreFromOutput(outputs)
-    for j in range(batch_size):
-        confusion[genre_tensor.data[j]][guess_is[j]] += 1
-# Normalize by dividing every row by its sum
-for i in range(n_genres):
-    confusion[i] = confusion[i] / confusion[i].sum()
 
 # Set up plot
 fig = plt.figure()
