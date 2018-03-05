@@ -129,10 +129,10 @@ def validate():
     for i in range(0, x_test.shape[0] - batch_size, batch_size):
         for j in range(0, x_test.shape[1] - sample_length, sample_length):
             song_tensor = Variable(torch.from_numpy(np.swapaxes(x_test[i:i+batch_size, j:j+sample_length],0,1)))
-            genre_tensor = torch.nonzero(torch.from_numpy(y_target[i:i+batch_size]))[:,1]
+            genre_tensor = Variable(torch.nonzero(torch.from_numpy(y_test[i:i+batch_size]))[:,1])
             outputs = evaluate(song_tensor)
             losses.append(torch.mean(criterion(outputs, genre_tensor).data))
-            accuracies.append(accuracy(outputs, genre_tensor))
+            accuracies.append(accuracy(outputs, genre_tensor.data))
             guesses, guess_is = genreFromOutput(outputs)
             for k in range(batch_size):
                 confusion[genre_tensor.data[k]][guess_is[k]] += 1;
