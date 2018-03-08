@@ -89,7 +89,7 @@ plot_every = 1000
 current_loss = 0
 all_losses = []
 
-learning_rate = 0.005
+learning_rate = 0.0005
 criterion = nn.NLLLoss()
 
 rnn = RNN(n_features, n_hidden, n_genres)
@@ -146,6 +146,8 @@ def train(genre_tensor, song_tensor):
 
     loss = criterion(outputs, genre_tensor)
     loss.backward()
+
+    torch.nn.utils.clip_grad_norm(rnn.parameters(), 2)
 
     # Add parameters' gradients to their values, multiplied by learning rate
     for p in rnn.parameters():
