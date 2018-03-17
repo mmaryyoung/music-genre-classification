@@ -19,20 +19,67 @@ import time
 import math
 
 
-sourceRoot = "/data/hibbslab/jyang/tzanetakis/ver6.0/"
-x_train = pickle.load(open(sourceRoot+"x_train_mel.p", "rb"))
-y_train = pickle.load(open(sourceRoot+"y_train_mel.p", "rb"))
-x_test = pickle.load(open(sourceRoot+"x_test_mel.p", "rb"))
-y_test = pickle.load(open(sourceRoot+"y_test_mel.p", "rb"))
-
-
-# 5 sec out of 30 sec, a sixth
 all_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
-n_genres = len(all_genres)
-n_features = x_train.shape[2]
-sample_length = x_train.shape[1]//6
+# NOTE New Age was removed, now the smallest genre is World of size 286
+msd_genres = ["Blues", "Electronic", "Jazz", "Metal", "Pop", "Rap", "RnB", "World", "Country", "Folk", "Latin", "Punk", "Reggae", "Rock"]
 
-batch_size = 50
+# DATASET SPECIFIC
+
+# sourceRoot = "/data/hibbslab/jyang/tzanetakis/ver6.0/"
+# x_train = pickle.load(open(sourceRoot+"x_train_mel.p", "rb"))
+# y_train = pickle.load(open(sourceRoot+"y_train_mel.p", "rb"))
+# x_test = pickle.load(open(sourceRoot+"x_test_mel.p", "rb"))
+# y_test = pickle.load(open(sourceRoot+"y_test_mel.p", "rb"))
+msd_path = "/data/hibbslab/jyang/msd/genres/"
+x_test = []
+y_test = []
+
+#n_genres = len(all_genres)
+n_genres = len(msd_genres)
+#n_features = x_train.shape[2]
+n_features = 128
+# 5 sec out of 30 sec, a sixth
+#sample_length = x_train.shape[1]//6
+sample_length = 1292 //6
+
+batch_size = 56
+
+
+def gatherMSDTest():
+    names = []
+    for root, dirs, files in os.walk(msd_path):
+        if os.path.basename(root) in msd_genres:
+            testingFiles = files[-100:]
+            names += [root + '/' + x for x in testingFiles]
+    np.random.shuffle(names)
+    x_test = [pickle.load(open(name, 'rb')) for name in names]
+    genres = [name.split('/')[-2] for name in names]
+    y_test = []
+    for g in genres:
+        one_label = [0]*len(msd_genres):
+        idx = msd_genres.index(g)
+        one_label[idx] = 1
+        y_test.append(one_label)
+
+
+def randomMSD():
+    each_genre = batch_size / len(msd_genres)
+    names = []
+    for root, dirs, files in os.walk(msd_path):
+        if os.path.basename(root) in msd_genres:
+            trainingNum = int(len(files)*0.8)
+            traingFiles = files[:trainingNum]
+            names += [root + "/" + random.choice(Trainingfiles) for x in range(each_genre)]
+    np.random.shuffle(names)
+    idx = random.randint(0, 1292 - sample_length -1)
+    song_tensor = [pickle.load(open(name, "rb"))[idx:idx+sample_length] for name in names]
+    song_tensor = np.swapaxes(song_tensor, 0, 1)
+    song_tensor = Variable(torch.from_numpy(song_tensor))
+    genres = [name.split('/')[-2] for name in names]
+    genre_tensor = [msd_genres.index(genre) for genre in genres]
+    genre_tensor = Variable(genre_tensor)
+    return genres, names, genre_tensor, song_tensor
+
 
 def randomExample(x_target, y_target):
     idx = random.randint(0, x_target.shape[0] - batch_size - 1)
@@ -161,7 +208,7 @@ def train(genre_tensor, song_tensor):
 start = time.time()
 right_count = 0.0
 for iter in range(1, n_iters + 1):
-    genres, songs, genre_tensor, song_tensor = randomExample(x_train, y_train)
+    genres, songs, genre_tensor, song_tensor = randomMSD()
     outputs, loss = train(genre_tensor, song_tensor)
     current_loss += loss
 
