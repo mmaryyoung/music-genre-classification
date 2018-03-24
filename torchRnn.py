@@ -22,8 +22,8 @@ import math
 
 
 gtzan_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
-# NOTE New Age was removed, now the smallest genre is World of size 286
-msd_genres = ["Blues", "Electronic", "Jazz", "Metal", "Pop", "Rap", "RnB", "World", "Country", "Folk", "Latin", "Punk", "Reggae", "Rock"]
+# NOTE Ten genres left. World, Latin, RnB, Pop and New Age are gone because they are the smallest
+msd_genres = ["Blues", "Electronic", "Jazz", "Metal", "Rap", "Country", "Folk", "Punk", "Reggae", "Rock"]
 all_genres = msd_genres
 
 # DATASET SPECIFIC
