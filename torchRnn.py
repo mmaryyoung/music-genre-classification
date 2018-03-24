@@ -6,6 +6,7 @@ import numpy as np
 import torch
 import random
 import sys
+import os
 
 import torch.nn as nn
 from torch.autograd import Variable
@@ -19,9 +20,11 @@ import time
 import math
 
 
-all_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
+
+gtzan_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
 # NOTE New Age was removed, now the smallest genre is World of size 286
 msd_genres = ["Blues", "Electronic", "Jazz", "Metal", "Pop", "Rap", "RnB", "World", "Country", "Folk", "Latin", "Punk", "Reggae", "Rock"]
+all_genres = msd_genres
 
 # DATASET SPECIFIC
 
@@ -35,7 +38,7 @@ x_test = []
 y_test = []
 
 #n_genres = len(all_genres)
-n_genres = len(msd_genres)
+n_genres = len(all_genres)
 #n_features = x_train.shape[2]
 n_features = 128
 # 5 sec out of 30 sec, a sixth
@@ -48,36 +51,39 @@ batch_size = 56
 def gatherMSDTest():
     names = []
     for root, dirs, files in os.walk(msd_path):
-        if os.path.basename(root) in msd_genres:
+        if os.path.basename(root) in all_genres:
             testingFiles = files[-100:]
             names += [root + '/' + x for x in testingFiles]
     np.random.shuffle(names)
+    global x_test
+    global y_test
     x_test = [pickle.load(open(name, 'rb')) for name in names]
     genres = [name.split('/')[-2] for name in names]
     y_test = []
     for g in genres:
-        one_label = [0]*len(msd_genres):
-        idx = msd_genres.index(g)
+        one_label = [0]*len(all_genres)
+        idx = all_genres.index(g)
         one_label[idx] = 1
         y_test.append(one_label)
-
+    x_test = np.array(x_test)
+    y_test = np.array(y_test)
 
 def randomMSD():
-    each_genre = batch_size / len(msd_genres)
+    each_genre = batch_size / len(all_genres)
     names = []
     for root, dirs, files in os.walk(msd_path):
-        if os.path.basename(root) in msd_genres:
+        if os.path.basename(root) in all_genres:
             trainingNum = int(len(files)*0.8)
-            traingFiles = files[:trainingNum]
-            names += [root + "/" + random.choice(Trainingfiles) for x in range(each_genre)]
+            trainingFiles = files[:trainingNum]
+            names += [root + "/" + random.choice(trainingFiles) for x in range(each_genre)]
     np.random.shuffle(names)
     idx = random.randint(0, 1292 - sample_length -1)
     song_tensor = [pickle.load(open(name, "rb"))[idx:idx+sample_length] for name in names]
     song_tensor = np.swapaxes(song_tensor, 0, 1)
-    song_tensor = Variable(torch.from_numpy(song_tensor))
+    song_tensor = Variable(torch.from_numpy(song_tensor).float())
     genres = [name.split('/')[-2] for name in names]
-    genre_tensor = [msd_genres.index(genre) for genre in genres]
-    genre_tensor = Variable(genre_tensor)
+    genre_tensor = [all_genres.index(genre) for genre in genres]
+    genre_tensor = Variable(torch.Tensor(genre_tensor).long())
     return genres, names, genre_tensor, song_tensor
 
 
@@ -129,7 +135,7 @@ class RNN(nn.Module):
 n_hidden = 144
 
 n_iters = 100000
-print_every = 5000
+print_every = 1000
 plot_every = 1000
 
 # Keep track of losses for plotting
@@ -175,7 +181,7 @@ def validate():
     accuracies = []
     for i in range(0, x_test.shape[0] - batch_size, batch_size):
         for j in range(0, x_test.shape[1] - sample_length, sample_length):
-            song_tensor = Variable(torch.from_numpy(np.swapaxes(x_test[i:i+batch_size, j:j+sample_length],0,1)))
+            song_tensor = Variable(torch.from_numpy(np.swapaxes(x_test[i:i+batch_size, j:j+sample_length],0,1)).float())
             genre_tensor = Variable(torch.nonzero(torch.from_numpy(y_test[i:i+batch_size]))[:,1])
             outputs = evaluate(song_tensor)
             losses.append(torch.mean(criterion(outputs, genre_tensor).data))
@@ -207,6 +213,7 @@ def train(genre_tensor, song_tensor):
 
 start = time.time()
 right_count = 0.0
+gatherMSDTest()
 for iter in range(1, n_iters + 1):
     genres, songs, genre_tensor, song_tensor = randomMSD()
     outputs, loss = train(genre_tensor, song_tensor)
