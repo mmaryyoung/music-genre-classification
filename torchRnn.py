@@ -45,7 +45,7 @@ n_features = 128
 #sample_length = x_train.shape[1]//6
 sample_length = 1292 //6
 
-batch_size = 56
+batch_size = 50
 
 
 def gatherMSDTest():

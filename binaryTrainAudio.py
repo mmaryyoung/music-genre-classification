@@ -1,6 +1,7 @@
 import pickle
 import sPickle
 import numpy as np
+import random
 
 import keras
 from keras.datasets import cifar10
@@ -44,11 +45,42 @@ gtzan_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "met
 this_genre = "metal"
 genre_idx = gtzan_genres.index(this_genre)
 
-y_train = [y[genre_idx] for y in y_train]
-y_test = [y[genre_idx] for y in y_test]
+y_train = [[1,0] if y[genre_idx] else [0,1] for y in y_train]
+y_test = [[1,0] if y[genre_idx] else [0,1] for y in y_test]
 y_train = np.array(y_train)
 y_test = np.array(y_test)
 
+idx_pool = []
+other_pool = []
+for i in range(len(y_train)):
+    if y_train[i][0] == 1:
+        idx_pool.append(i)
+    else:
+        other_pool.append(i)
+
+random.shuffle(other_pool) 
+idx_pool += other_pool[:len(idx_pool)]
+
+x_tmp = [x_train[i] for i in idx_pool]
+y_tmp = [y_train[i] for i in idx_pool]
+x_train = np.array(x_tmp)
+y_train = np.array(y_tmp)
+
+idx_pool = []
+other_pool = []
+for i in range(len(y_test)):
+    if y_test[i][0] == 1:
+        idx_pool.append(i)
+    else:
+        other_pool.append(i)
+    
+random.shuffle(other_pool) 
+idx_pool += other_pool[:len(idx_pool)]
+
+x_tmp = [x_test[i] for i in idx_pool]
+y_tmp = [y_test[i] for i in idx_pool]
+x_test = np.array(x_tmp)
+y_test = np.array(y_tmp)
 
 print('x_train shape:', x_train.shape)
 print('y_train shape:', y_train.shape)
@@ -101,8 +133,6 @@ x_test /= np.amax(x_test)
 
 print('Not using data augmentation.')
 
-print("x_train: "+ str(x_train.shape))
-print("y_train: "+ str(y_train.shape))
 model.fit(x_train, y_train, batch_size=batch_size, 
 	epochs=epochs,
 	validation_data=(x_test, y_test), shuffle=True)
