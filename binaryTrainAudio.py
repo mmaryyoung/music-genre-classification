@@ -42,6 +42,8 @@ y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
 
 gtzan_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
 
+###### TWO GENRE ADAPTATION ######
+
 this_genre = "metal"
 genre_idx = gtzan_genres.index(this_genre)
 
@@ -87,11 +89,14 @@ print('y_train shape:', y_train.shape)
 print('x_test shape:', x_test.shape)
 print('y_test shape:', y_test.shape)
 
-
-# Convert class vectors to binary class matrices.
-#y_train = keras.utils.to_categorical(y_train, num_classes)
-#y_test = keras.utils.to_categorical(y_test, num_classes)
-
+filepath = '/data/hibbslab/jyang/outputs/' + this_genre + 'Weights.{epoch:3d}-{val_loss:.2f}.hdf5'
+checkpointer = keras.callbacks.ModelCheckpoint(filepath, 
+                                monitor='val_loss', 
+                                verbose=0, 
+                                save_best_only=True, 
+                                save_weights_only=True, 
+                                mode='auto', 
+                                period=1)
 
 model = Sequential()
 
