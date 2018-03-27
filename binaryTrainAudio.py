@@ -57,9 +57,9 @@ for i in range(len(y_train)):
         idx_pool.append(i)
     else:
         other_pool.append(i)
-
 random.shuffle(other_pool) 
 idx_pool += other_pool[:len(idx_pool)]
+np.random.shuffle(idx_pool)
 
 x_tmp = [x_train[i] for i in idx_pool]
 y_tmp = [y_train[i] for i in idx_pool]
@@ -73,14 +73,14 @@ for i in range(len(y_test)):
         idx_pool.append(i)
     else:
         other_pool.append(i)
-    
 random.shuffle(other_pool) 
 idx_pool += other_pool[:len(idx_pool)]
+np.random.shuffle(idx_pool)
 
-x_tmp = [x_test[i] for i in idx_pool]
-y_tmp = [y_test[i] for i in idx_pool]
-x_test = np.array(x_tmp)
-y_test = np.array(y_tmp)
+x_tmp2 = [x_test[i] for i in idx_pool]
+y_tmp2 = [y_test[i] for i in idx_pool]
+x_test = np.array(x_tmp2)
+y_test = np.array(y_tmp2)
 
 print('x_train shape:', x_train.shape)
 print('y_train shape:', y_train.shape)
@@ -118,7 +118,7 @@ model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
 # initiate RMSprop optimizer
-opt = keras.optimizers.rmsprop(lr=1e-6, decay=1e-10)
+opt = keras.optimizers.rmsprop(lr=1e-7, decay=1e-10)
 nadam = keras.optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
 # Let's train the model using RMSprop
 model.compile(loss='binary_crossentropy',
