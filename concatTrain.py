@@ -8,8 +8,8 @@ import os
 import keras
 from keras.datasets import cifar10
 from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential
-from keras.layers import Concatenate, Dense, Dropout, Activation, Flatten
+from keras.models import Sequential, Model
+from keras.layers import Input, merge, concatenate, Concatenate, Dense, Dropout, Activation, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
 
@@ -25,21 +25,29 @@ y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
 x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
 y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
 
-
 firstLayer = []
+firstInput = Input(shape=(128, 126, 1))
 for root, dirs, files in os.walk('/data/hibbslab/jyang/outputs/bModels/'):
     for file in files:
         if '.hdf5' in file:
-        	oneG = Sequential()
-        	oneG.add(Conv2D(32, (3, 3), padding='same',
-                 input_shape=(128, 126, 1), name='conv1', trainable=False))
-            oneG.load_weights(root + file, by_name=True)
-            firstLayer.append(oneG)
+            #oneG = Sequential()
+            conv = Conv2D(32, (3, 3), padding='same',name='conv1', trainable=False)(firstInput)
+            #oneG.add(Conv2D(32, (3, 3), padding='same',
+            #         input_shape=(128,126,1), name='conv1', trainable=False))
+            m = Model(input=firstInput, output=conv)
+            m.load_weights(root + file, by_name=True)
+            firstLayer.append(m.get_layer('conv1'))
 assert(len(firstLayer) == num_classes)
 
+merged = concatenate(firstLayer, axis=1)
+#part1 = Model(input=[firstInput]*num_classes, )
+
+
 model = Sequential()
-# not sure about axis here
-model.add(Concatenate(firstLayer, axis=1))
+# not sure about axis here and input shape
+#merged = merge(firstLayer,mode='concat', concat_axis=1)
+
+model.add(merged)
 
 model.add(Activation('relu', name='relu1'))
 model.add(Conv2D(32, (3, 3), name='conv2'))
