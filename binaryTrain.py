@@ -2,6 +2,7 @@ import pickle
 import sPickle
 import numpy as np
 import random
+import sys
 
 import keras
 from keras.datasets import cifar10
@@ -44,7 +45,10 @@ gtzan_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "met
 
 ###### TWO GENRE ADAPTATION ######
 
-this_genre = "metal"
+assert len(sys.argv) > 1
+this_genre = sys.argv[1]
+print('Parsing ' + this_genre)
+
 genre_idx = gtzan_genres.index(this_genre)
 
 y_train = [[1,0] if y[genre_idx] else [0,1] for y in y_train]
@@ -89,15 +93,20 @@ print('y_train shape:', y_train.shape)
 print('x_test shape:', x_test.shape)
 print('y_test shape:', y_test.shape)
 
-filepath = '/data/hibbslab/jyang/outputs/' + this_genre + 'Weights.{epoch:3d}-{val_loss:.2f}.hdf5'
+filepath = '/data/hibbslab/jyang/outputs/' + this_genre + 'Weights.{epoch:3d}-{val_acc:.3f}.hdf5'
 checkpointer = keras.callbacks.ModelCheckpoint(filepath, 
-                                monitor='val_loss', 
+                                monitor='val_acc', 
                                 verbose=0, 
                                 save_best_only=True, 
                                 save_weights_only=True, 
                                 mode='auto', 
                                 period=1)
 
+earlystopper = keras.callbacks.EarlyStopping(monitor='val_acc',
+                                             min_delta=0,
+                                             patience=5,
+                                             verbose=0,
+                                             mode='auto')
 model = Sequential()
 
 model.add(Conv2D(32, (3, 3), padding='same',
@@ -123,8 +132,9 @@ model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
 # initiate RMSprop optimizer
-opt = keras.optimizers.rmsprop(lr=1e-7, decay=1e-10)
-nadam = keras.optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
+opt = keras.optimizers.rmsprop(lr=1e-6, decay=1e-10)
+# was 2e-3 for a long time (first batch of binary data)
+nadam = keras.optimizers.Nadam(lr=2e-5, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
 # Let's train the model using RMSprop
 model.compile(loss='binary_crossentropy',
               optimizer=nadam,
@@ -140,4 +150,4 @@ print('Not using data augmentation.')
 
 model.fit(x_train, y_train, batch_size=batch_size, 
 	epochs=epochs,
-	validation_data=(x_test, y_test), shuffle=True)
+	validation_data=(x_test, y_test), shuffle=True, callbacks=[checkpointer, earlystopper])
