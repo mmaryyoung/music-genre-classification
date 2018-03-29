@@ -134,7 +134,7 @@ model.add(Activation('softmax'))
 # initiate RMSprop optimizer
 opt = keras.optimizers.rmsprop(lr=1e-6, decay=1e-10)
 # was 2e-3 for a long time (first batch of binary data)
-nadam = keras.optimizers.Nadam(lr=2e-5, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
+nadam = keras.optimizers.Nadam(lr=2e-3, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
 # Let's train the model using RMSprop
 model.compile(loss='binary_crossentropy',
               optimizer=nadam,
