@@ -30,19 +30,15 @@ firstInput = Input(shape=(128, 126, 1))
 for root, dirs, files in os.walk('/data/hibbslab/jyang/outputs/bModels/'):
     for file in files:
         if '.hdf5' in file:
-            #oneG = Sequential()
-            conv = Conv2D(32, (3, 3), input_shape=(128,126.1), padding='same',name='conv1', trainable=False)(firstInput)
+            g = file.split('Weights')[0]
+            conv = Conv2D(32, (3, 3), input_shape=(128,126.1), padding='same',name='conv1'+g, trainable=False)(firstInput)
             #oneG.add(Conv2D(32, (3, 3), padding='same',
             #         input_shape=(128,126,1), name='conv1', trainable=False))
-            m = Model(input=firstInput, output=conv)
             m.load_weights(root + file, by_name=True)
-            firstLayer.append(m.get_layer('conv1'))
+            firstLayer.append(conv)
 assert(len(firstLayer) == num_classes)
 
-concat = Concatenate(axis = 1)
-merged = concat(firstLayer)
-
-#merged = concatenate(firstLayer, axis=1)
+merged = concatenate(firstLayer, axis=1)
 #part1 = Model(input=[firstInput]*num_classes, )
 
 # not sure about axis here and input shape
