@@ -20,17 +20,20 @@ epochs = 200
 data_augmentation = True
 
 dataPath = '/data/hibbslab/jyang/tzanetakis/ver5.0/'
-x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
-y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
 x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
 y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
+
+gtzan_genres = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
 
 # initiate RMSprop optimizer
 opt = keras.optimizers.rmsprop(lr=1e-6, decay=1e-10)
 # was 2e-3 for a long time (first batch of binary data)
 nadam = keras.optimizers.Nadam(lr=2e-3, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
 
-firstLayer = []
+grid = []
+for i in range(len(x_test)):
+      grid.append([0]*num_classes)
+
 firstInput = Input(shape=(128, 126, 1))
 for root, dirs, files in os.walk('/data/hibbslab/jyang/outputs/bModels/'):
     for file in files:
@@ -59,9 +62,17 @@ for root, dirs, files in os.walk('/data/hibbslab/jyang/outputs/bModels/'):
             model = Model(firstInput, merged)
             model.load_weights(root + file, by_name=True)
             single_result = model.predict(x_test)
-            print("shape of single result: " + str(single_result.shape))
+            for i in range(len(single_result)):
+                  grid[i][gtzan_genres.index(g)] = single_result[i][0]
 
+correct_count = 0
+for i in range(len(grid)):
+      pred = grid[i]
+      truth = y_test[i]
+      if pred.index(min(pred)) == truth.index(min(truth)):
+            correct_count += 1
 
+print "accuracy: ", str(1.0*correct_count/len(y_test))
 
 
 
