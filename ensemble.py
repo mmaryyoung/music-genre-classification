@@ -54,12 +54,12 @@ for root, dirs, files in os.walk('/data/hibbslab/jyang/outputs/bModels/'):
             merged = Dense(128, name='dense1'+ g)(merged)
             merged = Activation('relu', name='relu5'+ g)(merged)
             merged = Dropout(0.5, name='dropout3'+ g)(merged)
-            merged = Dense(num_classes, name='dense2'+ g)(merged)
+            merged = Dense(2, name='dense2'+ g)(merged)
             merged = Activation('softmax', name='softmax'+ g)(merged)
             model = Model(firstInput, merged)
             model.load_weights(root + file, by_name=True)
-            single_result = model.prediect(x_test)
-            print("shape of single result: " + single_result.shape())
+            single_result = model.predict(x_test)
+            print("shape of single result: " + str(single_result.shape))
 
 
 
