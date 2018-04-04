@@ -31,14 +31,13 @@ for root, dirs, files in os.walk('/data/hibbslab/jyang/outputs/bModels/'):
     for file in files:
         if '.hdf5' in file:
             g = file.split('Weights')[0]
-            conv = Conv2D(32, (3, 3), input_shape=(128,126.1), padding='same',name='conv1'+g, trainable=False)(firstInput)
-            #oneG.add(Conv2D(32, (3, 3), padding='same',
-            #         input_shape=(128,126,1), name='conv1', trainable=False))
-            m.load_weights(root + file, by_name=True)
+            conv = Conv2D(32, (3, 3), input_shape=(128,126,1), padding='same',name='conv1'+g, trainable=False)(firstInput)
             firstLayer.append(conv)
 assert(len(firstLayer) == num_classes)
 
 merged = concatenate(firstLayer, axis=1)
+
+
 #part1 = Model(input=[firstInput]*num_classes, )
 
 # not sure about axis here and input shape
@@ -65,6 +64,11 @@ merged = Dense(num_classes, name='dense2')(merged)
 merged = Activation('softmax', name='softmax')(merged)
 
 model = Model(firstInput, merged)
+#for root, dirs, files in os.walk('/data/hibbslab/jyang/outputs/bModels/'):
+#    for file in files:
+#        if '.hdf5' in file:
+#            model.load_weights(root + file, by_name=True)
+
 
 # initiate RMSprop optimizer
 opt = keras.optimizers.rmsprop(lr=1e-6, decay=1e-10)
@@ -83,9 +87,9 @@ x_test /= np.amax(x_test)
 
 print('Not using data augmentation.')
 
-model.fit([x_train]*num_classes, y_train, batch_size=batch_size, 
+model.fit(x_train, y_train, batch_size=batch_size, 
 	epochs=epochs,
-	validation_data=([x_test]*num_classes, y_test), shuffle=True)
+	validation_data=(x_test, y_test), shuffle=True)
 
 
 

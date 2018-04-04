@@ -41,9 +41,9 @@ y_test = []
 n_genres = len(all_genres)
 #n_features = x_train.shape[2]
 n_features = 128
-# 5 sec out of 30 sec, a sixth
+# 10 sec out of 30 sec, a third
 #sample_length = x_train.shape[1]//6
-sample_length = 1292 //6
+sample_length = 1292 //3
 
 batch_size = 50
 
@@ -259,6 +259,4 @@ ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 
 plt.savefig('grid.png')
-
-
 
