@@ -23,7 +23,7 @@ num_classes = 10
 epochs = 200
 data_augmentation = True
 
-dataPath = '/data/hibbslab/jyang/tzanetakis/ver7.0/'
+dataPath = '/data/hibbslab/jyang/tzanetakis/ver5.0/'
 x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
 y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
 x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
@@ -95,3 +95,5 @@ print("y_train: "+ str(y_train.shape))
 model.fit(x_train, y_train, batch_size=batch_size, 
 	epochs=epochs,
     validation_data=(x_test, y_test), shuffle=True)
+
+model.save('cnn3sec.h5')
