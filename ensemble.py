@@ -69,7 +69,7 @@ correct_count = 0
 for i in range(len(grid)):
       pred = grid[i]
       truth = y_test[i]
-      if pred.index(min(pred)) == truth.index(min(truth)):
+      if pred.index(max(pred)) == truth.tolist().index(max(truth)):
             correct_count += 1
 
 print "accuracy: ", str(1.0*correct_count/len(y_test))
