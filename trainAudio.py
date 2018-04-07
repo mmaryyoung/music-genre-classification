@@ -74,10 +74,17 @@ model.add(Dropout(0.5))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
-# initiate RMSprop optimizer
+
 opt = keras.optimizers.rmsprop(lr=1e-6, decay=1e-10)
 nadam = keras.optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
-# Let's train the model using RMSprop
+
+earlystopper = keras.callbacks.EarlyStopping(monitor='val_acc',
+                                             min_delta=0,
+                                             patience=10,
+                                             verbose=0,
+                                             mode='auto')
+
+
 model.compile(loss='categorical_crossentropy',
               optimizer=nadam,
               metrics=['accuracy'])
@@ -94,6 +101,8 @@ print("x_train: "+ str(x_train.shape))
 print("y_train: "+ str(y_train.shape))
 model.fit(x_train, y_train, batch_size=batch_size, 
 	epochs=epochs,
-    validation_data=(x_test, y_test), shuffle=True)
+    validation_data=(x_test, y_test), 
+    shuffle=True,
+    callbacks=[earlystopper])
 
 model.save('cnn3sec.h5')
