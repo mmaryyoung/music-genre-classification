@@ -14,29 +14,32 @@ from keras import backend as K
 
 from keras.models import load_model
 
-model = load_model('cnn3sec.h5')
+model = load_model('3L-cnn-Nadam.h5')
 
 
 dataPath = '/data/hibbslab/jyang/tzanetakis/ver5.0/'
-x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
-y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
-x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
-y_test = pickle.load(open(dataPath + 'y_test_mel.p', 'rb'))
+x_test = pickle.load(open(dataPath + 'x_holdout_mel.p', 'rb'))
+y_test = pickle.load(open(dataPath + 'y_holdout_mel.p', 'rb'))
 
 results = []
-for i in range(0,len(x_train)-10, 10):
-	correct_count = 0
-	for j in range(10):
-		prediction = model.predict(x_test[i+j])
-		truth = y_test[i+j]
-		prediction = prediction.index(max(prediction)) 
-		truth = truth.index(max(truth))
-		if prediction == truth:
-			correct_count += 1
-	if correct_count > 5:
-		results.append(True)
-	else:
-		results.append(False)
+predictions = []
+truths = []
+for i in range(0,len(x_test)-10, 10):
+    correct_count = 0
+    prediction = model.predict(x_test[i:i+10])
+    prediction = [p.tolist().index(max(p)) for p in prediction]
+    prediction = max(set(prediction), key=prediction.count)
+    predictions.append(prediction)
+    truth = y_test[i]
+    #assert(y_test[i].all() == y_test[i+1].all() and y_test[i+1].all() == y_test[i+9].all())
+    truth = truth.tolist().index(max(truth))
+    truths.append(truth)
+    #correct = [truth[i] == prediction[i] for i in range(10)].count(True)
+    if truth == prediction:
+        results.append(True)
+    else:
+        results.append(False)
+
 
 print "voting accuracy: ", 1.0*results.count(True)/len(results)
 

@@ -23,7 +23,7 @@ num_classes = 10
 epochs = 200
 data_augmentation = True
 
-dataPath = '/data/hibbslab/jyang/tzanetakis/ver5.0/'
+dataPath = '/data/hibbslab/jyang/tzanetakis/ver3.0/'
 x_train = pickle.load(open(dataPath + 'x_train_mel.p', 'rb'))
 y_train = pickle.load(open(dataPath + 'y_train_mel.p', 'rb'))
 x_test = pickle.load(open(dataPath + 'x_test_mel.p', 'rb'))
@@ -52,7 +52,7 @@ print('y_test shape:', y_test.shape)
 
 model = Sequential()
 
-model.add(Conv2D(32, (3, 3), padding='same',
+model.add(Conv2D(16, (3, 3), padding='same',
                  input_shape=x_train.shape[1:]))
 model.add(Activation('relu'))
 model.add(Conv2D(32, (3, 3)))
@@ -62,8 +62,8 @@ model.add(Dropout(0.25))
 
 model.add(Conv2D(64, (3, 3), padding='same'))
 model.add(Activation('relu'))
-model.add(Conv2D(64, (3, 3)))
-model.add(Activation('relu'))
+#model.add(Conv2D(64, (3, 3)))
+#model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
@@ -76,7 +76,10 @@ model.add(Activation('softmax'))
 
 
 opt = keras.optimizers.rmsprop(lr=1e-6, decay=1e-10)
-nadam = keras.optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
+nadam = keras.optimizers.Nadam(lr=2e-3, beta_1=0.9, beta_2=0.999, epsilon=K.epsilon(), schedule_decay=0.004)
+
+filepath = '3l-gt3-nadam.h5'
+checkpointer = keras.callbacks.ModelCheckpoint(filepath, monitor='val_acc', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
 
 earlystopper = keras.callbacks.EarlyStopping(monitor='val_acc',
                                              min_delta=0,
@@ -103,6 +106,6 @@ model.fit(x_train, y_train, batch_size=batch_size,
 	epochs=epochs,
     validation_data=(x_test, y_test), 
     shuffle=True,
-    callbacks=[earlystopper])
+    callbacks=[checkpointer])
 
-model.save('cnn3sec.h5')
+#model.save('cnn3sec.h5')
