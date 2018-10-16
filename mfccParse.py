@@ -20,6 +20,9 @@ sampleSize = sampleLength*42
 # Slice into appropriate chunks
 # Save for training
 
+# CHANGE HERE FOR DIFFERENT PATH
+source_path = "/Users/mac/Desktop/genres"
+destPath = '/Users/mac/Desktop/tzan7.0/'
 
 x_train = []
 y_train = []
@@ -32,8 +35,9 @@ y_holdout = []
 def parseAudio(genreIndex, songIndex, fName):
 	y, sr = librosa.load(fName)
 	# print('loaded ', fName)
-	# CHANGE HERE
-	audioLength = 60*sr
+	# CHANGE HERE TO 60 FOR MSD
+	# CHANGE HERE TO 30 FOR GTZAN
+	audioLength = 30*sr
 
 	# Leave the center if longer than one minute
 	if y.shape[0] > audioLength:
@@ -84,7 +88,7 @@ def parseAudio(genreIndex, songIndex, fName):
 #parseAudio(0,0,'stupid cupid.wav')
 gid = 0
 # CHANGE PATH
-for root, dirs, files in os.walk('/data/hibbslab/jyang/genres'):
+for root, dirs, files in os.walk(source_path):
 	if '_pickle' not in root and '_img' not in root:
 		sid = 0
 		print(root, gid)
@@ -103,7 +107,6 @@ y_test = np.asarray(y_test)
 x_holdout = np.asarray(x_holdout)
 y_holdout = np.asarray(y_holdout)
 
-destPath = '/data/hibbslab/jyang/tzanetakis/ver7.0/'
 pickle.dump(x_train, open(destPath+'x_train_mel.p', 'wb'))
 pickle.dump(y_train, open(destPath+'y_train_mel.p', 'wb'))
 pickle.dump(x_test, open(destPath+'x_test_mel.p', 'wb'))
