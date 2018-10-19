@@ -6,8 +6,8 @@ import librosa.display
 
 
 
-source_path = "/Users/mac/Desktop/genres/"
-dest_path = "/Users/mac/Desktop/waveformData/"
+source_path = "/data/hibbslab/jyang/genres/"
+dest_path = "/data/hibbslab/jyang/tzanetakis/ver8.0/"
 
 x_train = []
 y_train = []
@@ -71,22 +71,22 @@ for root, dirs, files in os.walk(source_path):
 
 
 # Normalize the data
-x_train = np.array(x_train).astype('float32')
-x_test = np.array(x_test).astype('float32')
-x_holdout = np.array(x_holdout).astype('float32')
-x_train /= np.amax(x_train)
-x_test /= np.amax(x_test)
-x_holdout /= np.amax(x_holdout)
-y_train = np.array(y_train)
-y_test = np.array(y_test)
-y_holdout = np.array(y_holdout)
+x_train = np.asarray(x_train)
+x_test = np.asarray(x_test)
+x_holdout = np.asarray(x_holdout)
+#x_train /= np.amax(x_train)
+#x_test /= np.amax(x_test)
+#x_holdout /= np.amax(x_holdout)
+y_train = np.asarray(y_train)
+y_test = np.asarray(y_test)
+y_holdout = np.asarray(y_holdout)
 
-print("x_train: " + x_train.shape)
-print("y_train: " + y_train.shape)
-print("x_test: " + x_test.shape)
-print("y_test: " + y_test.shape)
-print("x_holdout: " + x_holdout.shape)
-print("y_holdout: " + y_holdout.shape)
+print("x_train: " + str(x_train.shape))
+print("y_train: " + str(y_train.shape))
+print("x_test: " + str(x_test.shape))
+print("y_test: " + str(y_test.shape))
+print("x_holdout: " + str(x_holdout.shape))
+print("y_holdout: " + str(y_holdout.shape))
 
 
 pickle.dump(x_train, open(dest_path+'x_train_mel.p', 'wb'))
