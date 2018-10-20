@@ -38,33 +38,32 @@ def parseAudio(genreIndex, songIndex, fName):
 	else:
 		audioLength = y.shape[0]
 	chunks = y.reshape([samples_per_song, -1])
-	oneLabel = np.zeros([num_genres])
-	oneLabel[genreIndex] = 1
+	labels = np.zeros([samples_per_song, num_genres])
+	labels[:, genreIndex] = 1
 
 	#CHANGE HERE FOR HM DS
 	#CHANGE HERE FOR GTZAN
 	if songIndex < 50:
 		x_train[songIndex*samples_per_song:(songIndex+1)*samples_per_song] = chunks
-		y_train[songIndex*samples_per_song:(songIndex+1)*samples_per_song] = np.full((samples_per_song,), oneLabel)
+		y_train[songIndex*samples_per_song:(songIndex+1)*samples_per_song] = labels 
 		# [x_train.append(x) for x in chunks]
 		# [y_train.append(x) for x in [oneLabel]*len(chunks)]
 		# print('x_train: ', len(x_train), len(x_train[0]), len(x_train[0][0]))
 		# print('y_train: ', len(y_train))
 	elif songIndex > 70:
 		x_holdout[songIndex*samples_per_song:(songIndex+1)*samples_per_song] = chunks
-		y_holdout[songIndex*samples_per_song:(songIndex+1)*samples_per_song] = np.full((samples_per_song,), oneLabel)
+		y_holdout[songIndex*samples_per_song:(songIndex+1)*samples_per_song] = labels 
 		# print('x_holdout: ', len(x_holdout), len(x_holdout[0]), len(x_holdout[0][0]))
 		# print('y_holdout: ', len(y_holdout))
 	else:
 		x_test[songIndex*samples_per_song:(songIndex+1)*samples_per_song] = chunks
-		x_test[songIndex*samples_per_song:(songIndex+1)*samples_per_song] = np.full((samples_per_song,), oneLabel)
+		y_test[songIndex*samples_per_song:(songIndex+1)*samples_per_song] = labels 
 		# print('x_test: ', len(x_test), len(x_test[0]), len(x_test[0][0]))
 		# print('y_test: ', len(y_test))
 	
 	
 
 #parseAudio(0,0,'stupid cupid.wav')
-gid = 0
 # CHANGE PATH
 for root, dirs, files in os.walk(source_path):
 	if '_pickle' not in root and '_img' not in root:
