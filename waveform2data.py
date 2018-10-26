@@ -36,7 +36,7 @@ def parseAudio(genreIndex, songIndex, fName):
 		extraLength = int((y.shape[0] - audioLength)/2)
 		y = y[extraLength : audioLength + extraLength]
 	else:
-		audioLength = y.shape[0]
+ 		y = np.concatenate((y, np.zeros([audioLength - y.shape[0]]) ))
 	chunks = y.reshape([samples_per_song, -1])
 	labels = np.zeros([samples_per_song, num_genres])
 	labels[:, genreIndex] = 1
@@ -65,6 +65,7 @@ def parseAudio(genreIndex, songIndex, fName):
 
 #parseAudio(0,0,'stupid cupid.wav')
 # CHANGE PATH
+gid = 0
 for root, dirs, files in os.walk(source_path):
 	if '_pickle' not in root and '_img' not in root:
 		sid = 0
