@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 
+# Takes in a Keras history callback from a model fitting and plots the past run's loss and accuracy
+# into a figure and saves it locally.
 def plot_history(history, title):
   training_accuracy = history.history['categorical_accuracy']
   training_loss = history.history['loss']
@@ -13,4 +15,4 @@ def plot_history(history, title):
   plt.title(title)
   filename =  title + '.png'
   plt.savefig(filename.replace(' ', '_'))
-  return plt
+  plt.clf()

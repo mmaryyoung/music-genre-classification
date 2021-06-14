@@ -1,10 +1,20 @@
+"""
+Trains and fits a model to the GTZAN dataset.
+
+The training data is read from the result of the .raw_wave_to_melspects.py script as the melspects.npz.
+The model is created by the .keras_crnn.py script.
+The training is done iteratively through multiple optimizer specs, and cut off early when the accuracy
+no longer improves.
+Each training's learning curve will be printed via the .process_history.py script.
+"""
+
 import numpy as np
 import tensorflow as tf
-from data_sanity_check import checkData
-from keras_crnn import createCRNNModel
+from .data_sanity_check import checkData
+from .keras_crnn import createCRNNModel
 from keras.utils import np_utils
 from keras.optimizers import Adadelta, Adagrad, Adamax, Adam, Nadam, RMSprop, SGD, Ftrl
-from process_history import plot_history
+from .process_history import plot_history
 
 import itertools
 import datetime

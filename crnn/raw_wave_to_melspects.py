@@ -1,3 +1,11 @@
+"""
+Turns GTZAN raw wave samples into melspectrogram samples.
+
+The input of this file is the result of the .audio_to_grouped_raw_waves.py file. 
+The raw waves were already grouped into training, testing, and validation. The job of this file is to read
+those files and turn them into one .npz file containing all three.
+"""
+
 import numpy as np
 import librosa as lb 
 import matplotlib.pyplot as plt
@@ -23,7 +31,7 @@ def log_melspectrogram(data, log=True, plot=False, num='', genre=""):
 
 def batch_log_melspectrogram(data_list, log=True, plot=False):
 	melspecs = np.asarray([log_melspectrogram(data_list[i],log=log,plot=plot) for i in range(len(data_list))])
-	#this line may or may not be neccesary idk
+	# This line may or may not be neccesary idk.
 	# melspecs = melspecs.reshape(melspecs.shape[0], melspecs.shape[1], melspecs.shape[2], 1)
 	return melspecs
 
