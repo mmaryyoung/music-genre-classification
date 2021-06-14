@@ -11,7 +11,7 @@ import datetime
 import sys
 
 # Where the learning curve figures go.
-FIG_DIR_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/figs/'
+FIG_DIR_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/learning_curve_figs/'
 
 def loadall(filename=''):
     tmp = np.load(filename)
@@ -60,7 +60,7 @@ y_cv = np_utils.to_categorical(y_cv)
 if not checkData(x_tr, x_te, x_cv):
     sys.exit()
 
-
+# Trains the global data with variable optimizer specs.
 def variable_training(opt_type, learning_rate):
     print('Running training with optimizer %s and learning rate of %f.' % (opt_type, learning_rate))
     early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_categorical_accuracy', patience=7)
@@ -95,8 +95,8 @@ def variable_training(opt_type, learning_rate):
         shuffle=True)
     print('Done with this model spec. Best validation accuracy is %f.' % max(history.history['val_categorical_accuracy']))
     batch_timestamp = str(datetime.datetime.now())
-    fig_title = batch_timestamp + str(opt_type) + '-' + str(learning_rate)
-    plt = plot_history(history, fig_title)
+    fig_title = FIG_DIR_PATH + batch_timestamp + str(opt_type) + '-' + str(learning_rate)
+    plot_history(history, fig_title)
     print('Done saving the last learning curve. ')
 
 
