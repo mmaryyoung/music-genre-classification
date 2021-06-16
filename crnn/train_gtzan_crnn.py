@@ -3,18 +3,20 @@ Trains and fits a model to the GTZAN dataset.
 
 The training data is read from the result of the .raw_wave_to_melspects.py script as the melspects.npz.
 The model is created by the .keras_crnn.py script.
-The training is done iteratively through multiple optimizer specs, and cut off early when the accuracy
+The training is done iteratively through multiple optimizer configs, and cut off early when the accuracy
 no longer improves.
 Each training's learning curve will be printed via the .process_history.py script.
 """
 
 import numpy as np
 import tensorflow as tf
-from .data_sanity_check import checkData
-from .keras_crnn import createCRNNModel
+from data_sanity_check import checkData
+from keras_crnn import createCRNNModel
 from keras.utils import np_utils
 from keras.optimizers import Adadelta, Adagrad, Adamax, Adam, Nadam, RMSprop, SGD, Ftrl
-from .process_history import plot_history
+from operator import itemgetter
+from process_history import plot_history
+import tabulate
 
 import itertools
 import datetime
@@ -22,6 +24,7 @@ import sys
 
 # Where the learning curve figures go.
 FIG_DIR_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/learning_curve_figs/'
+MELSPECTS_SOURCE_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/10secs/melspects.npz'
 
 def loadall(filename=''):
     tmp = np.load(filename)
@@ -35,7 +38,8 @@ def loadall(filename=''):
             'x_te' : x_te, 'y_te' : y_te,
             'x_cv' : x_cv, 'y_cv' : y_cv, }
 
-data = loadall('melspects.npz')
+# Loads data from pre-precessed GTZAN dataset as melspectrograms.
+data = loadall(MELSPECTS_SOURCE_PATH)
 
 x_tr = data['x_tr']
 y_tr = data['y_tr']
@@ -67,6 +71,7 @@ y_tr = np_utils.to_categorical(y_tr)
 y_te = np_utils.to_categorical(y_te)
 y_cv = np_utils.to_categorical(y_cv)
 
+# Makes sure the data passes basic sanity checks before moving forward.
 if not checkData(x_tr, x_te, x_cv):
     sys.exit()
 
@@ -103,15 +108,32 @@ def variable_training(opt_type, learning_rate):
         callbacks=[early_stopping_callback],
         verbose=2,
         shuffle=True)
-    print('Done with this model spec. Best validation accuracy is %f.' % max(history.history['val_categorical_accuracy']))
-    batch_timestamp = str(datetime.datetime.now())
-    fig_title = FIG_DIR_PATH + batch_timestamp + str(opt_type) + '-' + str(learning_rate)
-    plot_history(history, fig_title)
-    print('Done saving the last learning curve. ')
+    return history
 
 
 opt_types = ['adam', 'nadam', 'rmsprop', 'sgd', 'adadelta', 'adagrad', 'adamax', 'ftrl']
 learning_rates = [1, 0.1, 0.01, 0.001, 0.0005, 0.0001]
 
+results_table = []
+# Iterates through all the combinations of the different setup configs.
 for pair in itertools.product(opt_types, learning_rates):
-    variable_training(pair[0], pair[1])
+    opt_type = pair[0]
+    learning_rate = pair[1]
+    history = variable_training(opt_type, learning_rate)
+    # Prints and saves the best result from this config.
+    max_acc_idx, max_acc = max(enumerate(history.history['val_categorical_accuracy']), key=itemgetter(1))
+    print('Done with the %s/%s model. Best validation accuracy is %f, achieved at epoch #%d' % (
+        opt_type, learning_rate, max_acc, max_acc_idx + 1))
+    results_table.append({
+        'opt_type': opt_type,
+        'learning_rate': learning_rate,
+        'best_val_accuracy': max_acc,
+        'best_val_accuracy_epoch': max_acc_idx + 1
+    })
+    # Save the learning curve figure from this config.
+    batch_timestamp = str(datetime.datetime.now())
+    fig_title = FIG_DIR_PATH + batch_timestamp + str(pair[0]) + '-' + str(pair[1])
+    plot_history(history, fig_title)
+    print('Done saving the last learning curve. ')
+
+print(tabulate(results_table, headers='keys', tablefmt='fancy_grid'))

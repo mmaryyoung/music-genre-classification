@@ -4,10 +4,10 @@ import numpy as np
 import os
 
 source_path = '/Users/maryyang/Learning/genres/'
-dest_path = '/Users/maryyang/Learning/music_genre_classification/crnn/gtzan/'
+dest_path = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/10secs/'
 
 source_rate = 22050
-seconds_per_sample = 15
+seconds_per_sample = 10
 samples_per_song = 2
 song_length = seconds_per_sample * samples_per_song
 num_genres = 10
