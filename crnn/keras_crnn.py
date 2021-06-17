@@ -7,7 +7,14 @@ from keras.layers.recurrent import GRU, LSTM
 from keras.models import Model
 from keras.utils.data_utils import get_file
 
-def createCRNNModel(input_shape, num_classes=10, normalized=False):
+def createCRNNModel(
+    input_shape,
+    num_classes=10,
+    normalized=False,
+    conv_num=2,
+    conv_filter=64,
+    conv_kernel_size=3,
+    conv_stride=3):
     melgram_input = Input(shape=input_shape)
     if K.image_data_format() == 'channels_last':
         time_axis, freq_axis, channel_axis = 1, 2, 3
@@ -17,19 +24,17 @@ def createCRNNModel(input_shape, num_classes=10, normalized=False):
     # Building the model
     x = melgram_input if normalized else BatchNormalization(axis=freq_axis, name='bn_0_freq')(melgram_input)
 
-    # Conv block 1
-    x = Convolution2D(64, 3, 3, padding='same', name='conv1')(x)
-    # x = BatchNormalization(axis=channel_axis, name='bn1')(x)
-    # x = ELU()(x)
-    x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='pool1')(x)
-    x = Dropout(0.2, name='dropout1')(x)
-
-    # Conv block 2
-    x = Convolution2D(128, 3, 3, padding='same', name='conv2')(x)
-    # x = BatchNormalization(axis=channel_axis, name='bn2')(x)
-    # x = ELU()(x)
-    x = MaxPooling2D(pool_size=(3, 3), strides=(3, 3), name='pool2')(x)
-    x = Dropout(0.2, name='dropout2')(x)
+    for conv_idx in range(conv_num):
+        x = Convolution2D(
+            conv_filter,
+            conv_kernel_size,
+            conv_stride,
+            padding='same',
+            name='conv' + str(conv_idx + 1))(x)
+        # x = BatchNormalization(axis=channel_axis, name='bn1')(x)
+        # x = ELU()(x)
+        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='pool' + str(conv_idx + 1))(x)
+        x = Dropout(0.2, name='dropout' + str(conv_idx + 1))(x)
 
     # x = Flatten()(x)
     # x = Dense(num_classes, activation='softmax')(x)
@@ -45,6 +50,3 @@ def createCRNNModel(input_shape, num_classes=10, normalized=False):
     # Create model
     model = Model(melgram_input, x)
     return model
-
-m = createCRNNModel((360, 128, 2))
-print(m.summary())
