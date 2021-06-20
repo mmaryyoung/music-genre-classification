@@ -8,6 +8,7 @@ no longer improves.
 Each training's learning curve will be printed via the .process_history.py script.
 """
 
+import atexit
 import numpy as np
 import tensorflow as tf
 from data_sanity_check import checkData
@@ -64,7 +65,7 @@ def load_data(filename=''):
     return x_tr, y_tr, x_te, y_te, x_cv, y_cv
 
 # Trains the global data with variable optimizer specs.
-def variable_training(opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride):
+def train_with_config(opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride):
     early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_categorical_accuracy', patience=7)
     if opt_type == 'adam':
         opt = Adam(learning_rate=learning_rate)
@@ -103,22 +104,29 @@ def variable_training(opt_type, learning_rate, conv_num, conv_filter, conv_kerne
         shuffle=True)
     return history
 
+# Setup the failt-safe to always print out the results so far before exiting the program.
+results_table = []
+def handle_exit():
+    # Prints the efficacy of different model configs in a table.
+    print(tabulate(results_table, headers='keys', tablefmt='github'))
+atexit.register(handle_exit)
+
 # All potential network configurations.
 opt_types = [
     'adam',
-    'nadam',
-    'rmsprop',
+    # 'nadam',
+    # 'rmsprop',
     'sgd',
     'adadelta',
-    'adagrad',
+    # 'adagrad',
     'adamax',
-    'ftrl']
+    # 'ftrl',
+    ]
 learning_rates = [
     1,
     0.1,
-    0.01,
-    0.001,
-    0.0005,
+    # 0.01,
+    # 0.001,
     0.0001]
 conv_nums = [
     1,
@@ -145,20 +153,14 @@ if not checkData(x_tr, x_te, x_cv):
     sys.exit()
 
 # Iterates through all the combinations of the different setup configs.
-results_table = []
-for pair in itertools.product(opt_types, learning_rates, conv_nums, conv_filters, conv_kernel_sizes, conv_strides):
-    opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride = pair
-    # learning_rate = pair[1]
-    # conv_num = pair[2]
-    # conv_filter = pair[3]
-    # conv_kernel_size = pair[4]
-    # conv_stride = pair[5]
+for combo in itertools.product(opt_types, learning_rates, conv_nums, conv_filters, conv_kernel_sizes, conv_strides):
+    opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride = combo
     config_summary_str = 'opt=%s/lr=%f/conv#=%d/filter#=%d/kernel_size=%d/strides=%d' % (
         opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride
     )
     print('Training with model: %s.' % config_summary_str)
     try:
-        history = variable_training(opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride)
+        history = train_with_config(opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride)
         # Prints and saves the best result from this config.
         max_acc_idx, max_acc = max(enumerate(history.history['val_categorical_accuracy']), key=itemgetter(1))
         print(
@@ -182,5 +184,3 @@ for pair in itertools.product(opt_types, learning_rates, conv_nums, conv_filters
     except ValueError as e:
         print('The config %s does not work. Error: %s.' % (config_summary_str, e))
 
-# Prints the efficacy of different model configs in a table.
-print(tabulate(results_table, headers='keys', tablefmt='fancy_grid'))
