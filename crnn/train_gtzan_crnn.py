@@ -178,7 +178,7 @@ for combo in itertools.product(opt_types, learning_rates, conv_nums, conv_filter
         })
         # Save the learning curve figure from this config.
         batch_timestamp = str(datetime.datetime.now())
-        fig_title = FIG_DIR_PATH + batch_timestamp + str(pair[0]) + '-' + str(pair[1])
+        fig_title = FIG_DIR_PATH + batch_timestamp + config_summary_str.replace('/', '-')
         plot_history(history, fig_title)
         print('Done saving the last learning curve. ')
     except ValueError as e:
