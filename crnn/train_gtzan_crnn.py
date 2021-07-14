@@ -25,7 +25,7 @@ import sys
 
 # Where the learning curve figures go.
 FIG_DIR_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/learning_curve_figs/'
-MELSPECTS_SOURCE_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/10secs/melspects.npz'
+MELSPECTS_SOURCE_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/15secs/melspects.npz'
 
 def load_data(filename=''):
     # Loads the data.
@@ -129,7 +129,7 @@ learning_rates = [
     # 0.001,
     0.0001]
 conv_nums = [
-    1,
+    # 1,
     2,
     3]
 conv_filters = [
@@ -141,7 +141,7 @@ conv_kernel_sizes = [
     5,
     10]
 conv_strides = [
-    1,
+    # 1,
     3,
     5]
 

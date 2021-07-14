@@ -42,7 +42,9 @@ def createCRNNModel(
     # reshaping
     if K.image_data_format() == 'channels_first':
         x = Permute((3, 1, 2))(x)
-    x = Reshape((-1, 128))(x)
+    # Arrange it so that the original n-mels dimension and filters dimension are the last two.
+    x = Permute((2, 1, 3))(x)
+    x = Reshape((-1, x.shape[2] * x.shape[3]))(x)
     # RNN block 1, 2, output
     x = LSTM(num_classes, return_sequences=False, name='lstm1', activation='softmax')(x)
     x = Dropout(0.1)(x)

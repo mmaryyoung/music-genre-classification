@@ -18,7 +18,7 @@ N_FFT = 512
 HOP_LENGTH = N_FFT // 2
 N_MELS = 64 
 
-def log_melspectrogram(data, log=True, plot=False, num='', genre=""):
+def log_melspectrogram(data, log=True, plot=False, num='', genre=''):
 
 	melspec = lb.feature.melspectrogram(y=data, hop_length = HOP_LENGTH, n_fft = N_FFT, n_mels = N_MELS)
 
