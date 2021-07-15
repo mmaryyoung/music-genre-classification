@@ -27,7 +27,7 @@ import sys
 FIG_DIR_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/learning_curve_figs/'
 MELSPECTS_SOURCE_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/15secs/melspects.npz'
 
-def load_data(filename=''):
+def _load_data(filename=''):
     # Loads the data.
     tmp = np.load(filename)
     x_tr = tmp['x_tr']
@@ -64,28 +64,30 @@ def load_data(filename=''):
     y_cv = np_utils.to_categorical(y_cv)
     return x_tr, y_tr, x_te, y_te, x_cv, y_cv
 
+def _get_optimizer(opt_type, learning_rate):
+    if opt_type == 'adam':
+        return Adam(learning_rate=learning_rate)
+    elif opt_type == 'nadam':
+        return Nadam(learning_rate=learning_rate)
+    elif opt_type == 'sgd':
+        return SGD(learning_rate=learning_rate)
+    elif opt_type == 'adadelta':
+        return Adadelta(learning_rate=learning_rate)
+    elif opt_type == 'adagrad':
+        return Adagrad(learning_rate=learning_rate)
+    elif opt_type == 'adamax':
+        return Adamax(learning_rate=learning_rate)
+    elif opt_type == 'ftrl':
+        return Ftrl(learning_rate=learning_rate)
+    elif opt_type == 'rmsprop':
+        return RMSprop(learning_rate=learning_rate)
+    else:
+        raise NotImplementedError('Optimizer type %s is not implemented.' % opt_type)
+    
 # Trains the global data with variable optimizer specs.
 def train_with_config(opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride):
     early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_categorical_accuracy', patience=7)
-    if opt_type == 'adam':
-        opt = Adam(learning_rate=learning_rate)
-    elif opt_type == 'nadam':
-        opt = Nadam(learning_rate=learning_rate)
-    elif opt_type == 'sgd':
-        opt = SGD(learning_rate=learning_rate)
-    elif opt_type == 'adadelta':
-        opt = Adadelta(learning_rate=learning_rate)
-    elif opt_type == 'adagrad':
-        opt = Adagrad(learning_rate=learning_rate)
-    elif opt_type == 'adamax':
-        opt = Adamax(learning_rate=learning_rate)
-    elif opt_type == 'ftrl':
-        opt = Ftrl(learning_rate=learning_rate)
-    elif opt_type == 'rmsprop':
-        opt = RMSprop(learning_rate=learning_rate)
-    else:
-        raise NotImplementedError('Optimizer type %s is not implemented.' % opt_type)
-    opt = Nadam(learning_rate=0.0005)
+    opt = _get_optimizer(opt_type, learning_rate)
     model = createCRNNModel(
         x_tr.shape[1:],
         conv_num=conv_num,
@@ -146,7 +148,7 @@ conv_strides = [
     5]
 
 # Loads data from pre-precessed GTZAN dataset as melspectrograms.
-x_tr, y_tr, x_te, y_te, x_cv, y_cv = load_data(MELSPECTS_SOURCE_PATH)
+x_tr, y_tr, x_te, y_te, x_cv, y_cv = _load_data(MELSPECTS_SOURCE_PATH)
 
 # Makes sure the data passes basic sanity checks before moving forward.
 if not checkData(x_tr, x_te, x_cv):
@@ -155,6 +157,8 @@ if not checkData(x_tr, x_te, x_cv):
 # Iterates through all the combinations of the different setup configs.
 for combo in itertools.product(opt_types, learning_rates, conv_nums, conv_filters, conv_kernel_sizes, conv_strides):
     opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride = combo
+    if conv_kernel_size < conv_stride:
+        pass
     config_summary_str = 'opt=%s/lr=%f/conv#=%d/filter#=%d/kernel_size=%d/strides=%d' % (
         opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride
     )
