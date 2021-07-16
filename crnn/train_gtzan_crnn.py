@@ -11,6 +11,7 @@ Each training's learning curve will be printed via the .process_history.py scrip
 import atexit
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.ops.math_ops import truediv
 from data_sanity_check import checkData
 from keras_crnn import createCRNNModel
 from keras.utils import np_utils
@@ -106,6 +107,20 @@ def train_with_config(opt_type, learning_rate, conv_num, conv_filter, conv_kerne
         shuffle=True)
     return history
 
+def _ignore_config_combo(combo):
+    ignore_combos = [
+        lambda combo: combo[0] == 'adam' and combo[1] > 0.001,
+        lambda combo: combo[0] == 'sgd' and (combo[1] > 0.1 or combo[1] < 0.01), 
+        lambda combo: combo[0] == 'adadelta' and combo[1] < 0.1,
+        lambda combo: combo[0] == 'adamax' and combo[1] > 0.001,
+        lambda combo: combo[0] == 'sgd' and combo[4] == 10 and combo[5] == 3,
+        lambda combo: combo[4] < combo[5]
+    ]
+    for ignore_combo in ignore_combos:
+        if ignore_combo(combo):
+            return True
+    return False
+
 # Setup the failt-safe to always print out the results so far before exiting the program.
 results_table = []
 def handle_exit():
@@ -157,11 +172,11 @@ if not checkData(x_tr, x_te, x_cv):
 # Iterates through all the combinations of the different setup configs.
 for combo in itertools.product(opt_types, learning_rates, conv_nums, conv_filters, conv_kernel_sizes, conv_strides):
     opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride = combo
-    if conv_kernel_size < conv_stride:
-        pass
     config_summary_str = 'opt=%s/lr=%f/conv#=%d/filter#=%d/kernel_size=%d/strides=%d' % (
         opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride
     )
+    if _ignore_config_combo(combo):
+        continue
     print('Training with model: %s.' % config_summary_str)
     try:
         history = train_with_config(opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride)
