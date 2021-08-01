@@ -26,7 +26,7 @@ import sys
 
 # Where the learning curve figures go.
 FIG_DIR_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/learning_curve_figs/'
-MELSPECTS_SOURCE_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/15secs/melspects.npz'
+MELSPECTS_SOURCE_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/franken5secs/melspects.npz'
 
 def _load_data(filename=''):
     # Loads the data.

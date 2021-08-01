@@ -4,6 +4,11 @@ Turns GTZAN raw wave samples into melspectrogram samples.
 The input of this file is the result of the .audio_to_grouped_raw_waves.py file. 
 The raw waves were already grouped into training, testing, and validation. The job of this file is to read
 those files and turn them into one .npz file containing all three.
+
+Output: an .npz file to a local directory. It can be retrieved by np.load(FILE_PATH) into a dictionary.
+    Here are some sample sizes for the x and y training data: 
+	data['x_tr'].shape = (1600, 64, 1292)
+	data['y_tr'].shape = (1600,)
 """
 
 import numpy as np

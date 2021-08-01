@@ -33,7 +33,7 @@ def parse_audio(genre_index, song_index, file_name):
     chunks = raw_wave.reshape([-1, sample_length])
     samples = np.random.permutation(chunks)[:samples_per_song]
     labels = [[genre_index]] * samples_per_song
-    # Append the label to end end of each sample. It's weird, I know.
+    # Append the label to the end of each sample. It's weird, I know.
     combined = np.concatenate((samples, labels), axis=1)
 
     global training
