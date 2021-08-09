@@ -1,6 +1,7 @@
 import librosa as lb
 import numpy as np
 import os
+import random
 import matplotlib.pyplot as plt
 
 SOURCE_PATH = '/Users/maryyang/Learning/genres/'
@@ -37,7 +38,8 @@ def log_melspectrogram(data, log=True, plot=False, num='', genre='', hop_length=
 
 	return melspec
 
-
+shuffled_song_indices = list(range(SONGS_PER_GENRE))
+random.shuffle(shuffled_song_indices)
 def parse_audio(genre_index, song_index, file_name):
     y, sr = lb.load(file_name)
 
@@ -72,10 +74,10 @@ def parse_audio(genre_index, song_index, file_name):
     samples = np.random.permutation(mel_chunks)[:SAMPLES_PER_SONG]
     labels = [genre_index] * SAMPLES_PER_SONG
 
-    if song_index < 80:
+    if shuffled_song_indices[song_index] < 80:
         x_train.extend(samples)
         y_train.extend(labels)
-    elif song_index < 90:
+    elif shuffled_song_indices[song_index] < 90:
         x_test.extend(samples)
         y_test.extend(labels)
     else:
