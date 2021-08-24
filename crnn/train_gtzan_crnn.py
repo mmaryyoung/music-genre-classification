@@ -87,7 +87,7 @@ def _get_optimizer(opt_type, learning_rate):
     
 # Trains the global data with variable optimizer specs.
 def train_with_config(opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride):
-    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_categorical_accuracy', patience=7)
+    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='categorical_accuracy', patience=7)
     opt = _get_optimizer(opt_type, learning_rate)
     model = createCRNNModel(
         x_tr.shape[1:],
@@ -130,10 +130,10 @@ atexit.register(handle_exit)
 
 # All potential network configurations.
 opt_types = [
-    'adam',
+    # 'adam',
     # 'nadam',
     # 'rmsprop',
-    'sgd',
+    # 'sgd',
     'adadelta',
     # 'adagrad',
     'adamax',
