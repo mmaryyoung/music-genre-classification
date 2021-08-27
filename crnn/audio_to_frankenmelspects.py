@@ -4,8 +4,8 @@ import os
 import random
 import matplotlib.pyplot as plt
 
-SOURCE_PATH = '/Users/maryyang/Learning/genres/'
-MELSPECTS_DEST_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/franken5secs/melspects.npz'
+SOURCE_PATH = '../../genres/'
+MELSPECTS_DEST_PATH = './gtzan/franken5secs/melspects.npz'
 
 SOURCE_RATE = 22050
 SECONDS_PER_SAMPLE = 5

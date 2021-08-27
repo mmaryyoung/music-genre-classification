@@ -1,8 +1,7 @@
 from keras import backend as K
-from keras.layers import Dense, Dropout, Flatten, Input, Permute, Reshape, Softmax
+from keras.layers import BatchNormalization, Dense, Dropout, Flatten, Input, Permute, Reshape, Softmax
 from keras.layers.advanced_activations import ELU
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
-from keras.layers.normalization import BatchNormalization
 from keras.layers.recurrent import GRU, LSTM
 from keras.models import Model
 from keras.utils.data_utils import get_file

@@ -1,0 +1,12 @@
+# Ignore the cache.
+**/__pycache__/*
+*.DS_Store
+# Ignore the stored numpy data.
+*.npz
+*.npy
+# Ignore the charts and images.
+*.png
+# Ignore the data folder.
+crnn/gtzan/*
+# Ignore the training log.
+crnn/training_logs/*

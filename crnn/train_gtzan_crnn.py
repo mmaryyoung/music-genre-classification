@@ -15,18 +15,18 @@ from tensorflow.python.ops.math_ops import truediv
 from data_sanity_check import checkData
 from keras_crnn import createCRNNModel
 from keras.utils import np_utils
-from keras.optimizers import Adadelta, Adagrad, Adamax, Adam, Nadam, RMSprop, SGD, Ftrl
 from operator import itemgetter
 from process_history import plot_history
 from tabulate import tabulate
+from tensorflow.keras.optimizers import Adadelta, Adagrad, Adamax, Adam, Nadam, RMSprop, SGD, Ftrl
 
 import itertools
 import datetime
 import sys
 
 # Where the learning curve figures go.
-FIG_DIR_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/learning_curve_figs/'
-MELSPECTS_SOURCE_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/franken5secs/melspects.npz'
+FIG_DIR_PATH = './learning_curve_figs/'
+MELSPECTS_SOURCE_PATH = './gtzan/franken5secs/melspects.npz'
 
 def _load_data(filename=''):
     # Loads the data.
@@ -130,7 +130,7 @@ atexit.register(handle_exit)
 
 # All potential network configurations.
 opt_types = [
-    # 'adam',
+     'adam',
     # 'nadam',
     # 'rmsprop',
     # 'sgd',
