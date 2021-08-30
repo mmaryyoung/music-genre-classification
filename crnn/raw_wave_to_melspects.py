@@ -15,8 +15,8 @@ import numpy as np
 import librosa as lb 
 import matplotlib.pyplot as plt
 
-RAW_WAVE_SOURCE_DIR = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/10secs/'
-MELSPECTS_DEST_PATH = '/Users/maryyang/Learning/music-genre-classification/crnn/gtzan/10secs/melspects.npz'
+RAW_WAVE_SOURCE_DIR = './gtzan/10secs/'
+MELSPECTS_DEST_PATH = './gtzan/10secs/melspects.npz'
 
 SR = 22050
 N_FFT = 512
