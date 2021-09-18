@@ -15,8 +15,8 @@ import numpy as np
 import librosa as lb 
 import matplotlib.pyplot as plt
 
-RAW_WAVE_SOURCE_DIR = './gtzan/10secs/'
-MELSPECTS_DEST_PATH = './gtzan/10secs/melspects.npz'
+RAW_WAVE_SOURCE_DIR = './gtzan/5secs/'
+MELSPECTS_DEST_PATH = './gtzan/5secs/melspects.npz'
 
 SR = 22050
 N_FFT = 512
@@ -44,19 +44,25 @@ def batch_log_melspectrogram(data_list, log=True, plot=False):
 	return melspecs
 
 training = np.load(RAW_WAVE_SOURCE_DIR + 'gtzan_tr.npy')
+print("loaded training data")
 data_tr = np.delete(training, -1, 1)
 label_tr = training[:,-1]
 spects_tr = batch_log_melspectrogram(data_tr)
+print("processed training data")
 
 testing = np.load(RAW_WAVE_SOURCE_DIR + 'gtzan_te.npy')
+print("loaded testing data")
 data_te = np.delete(testing, -1, 1)
 label_te = testing[:,-1]
 spects_te = batch_log_melspectrogram(data_te)
+print("processed testing data")
 
 crossval = np.load(RAW_WAVE_SOURCE_DIR + 'gtzan_cv.npy')
+print("loaded validation data")
 data_cv = np.delete(crossval, -1, 1)
 label_cv = crossval[:,-1]
 spects_cv = batch_log_melspectrogram(data_cv)
+print("processed validation data")
 
 print("Saving to %s" % MELSPECTS_DEST_PATH)
 np.savez(MELSPECTS_DEST_PATH, x_tr=spects_tr, y_tr=label_tr, x_te=spects_te, y_te=label_te, x_cv=spects_cv, y_cv=label_cv)

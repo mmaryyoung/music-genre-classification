@@ -26,7 +26,7 @@ import sys
 
 # Where the learning curve figures go.
 FIG_DIR_PATH = './learning_curve_figs/'
-MELSPECTS_SOURCE_PATH = './gtzan/franken5secs/melspects.npz'
+MELSPECTS_SOURCE_PATH = './gtzan/5secs/melspects.npz'
 
 def _load_data(filename=''):
     # Loads the data.
@@ -98,7 +98,7 @@ def train_with_config(opt_type, learning_rate, conv_num, conv_filter, conv_kerne
     print(model.summary())
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['categorical_accuracy'])
     history = model.fit(
-        x=x_tr, y=y_tr,
+            x=x_tr, y=y_tr,
         validation_data=(x_te, y_te),
         batch_size=20,
         epochs=100,
@@ -131,22 +131,22 @@ atexit.register(handle_exit)
 # All potential network configurations.
 opt_types = [
      'adam',
-    # 'nadam',
-    # 'rmsprop',
-    # 'sgd',
+     'nadam',
+     'rmsprop',
+     'sgd',
     'adadelta',
-    # 'adagrad',
+     'adagrad',
     'adamax',
-    # 'ftrl',
+     'ftrl',
     ]
 learning_rates = [
     1,
     0.1,
-    # 0.01,
-    # 0.001,
+     0.01,
+     0.001,
     0.0001]
 conv_nums = [
-    # 1,
+    1,
     2,
     3]
 conv_filters = [
