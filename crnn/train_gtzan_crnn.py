@@ -26,7 +26,7 @@ import sys
 
 # Where the learning curve figures go.
 FIG_DIR_PATH = './learning_curve_figs/'
-MELSPECTS_SOURCE_PATH = './gtzan/5secs/melspects.npz'
+MELSPECTS_SOURCE_PATH = './gtzan/10secs/melspects.npz'
 
 def _load_data(filename=''):
     # Loads the data.
@@ -114,10 +114,10 @@ def _ignore_config_combo(combo):
         lambda combo: combo[0] == 'rmsprop' and combo[1] > 0.0001,
         lambda combo: combo[0] == 'sgd' and (combo[1] > 0.01 or combo[1] < 0.01), 
         lambda combo: combo[0] == 'adadelta' and combo[1] < 0.1,
-        lambda combo: combo[0] == 'adagrad' and (combo[1] > 0.01 or combo[1] < 0.001),
+        lambda combo: combo[0] == 'adagrad' and (combo[1] != 0.01),
         lambda combo: combo[0] == 'adamax' and combo[1] > 0.001,
         lambda combo: combo[0] == 'sgd' and combo[4] == 10 and combo[5] == 3,
-        lambda combo: combo[0] == 'ftrl' and combo[1] != 0.1,
+        lambda combo: combo[0] == 'ftrl' and (combo[1] != 0.1 or combo[2] > 1),
         lambda combo: combo[4] < combo[5]
     ]
     for ignore_combo in ignore_combos:
