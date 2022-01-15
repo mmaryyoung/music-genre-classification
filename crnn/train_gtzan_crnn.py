@@ -11,7 +11,6 @@ Each training's learning curve will be printed via the .process_history.py scrip
 import atexit
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.ops.math_ops import truediv
 from data_sanity_check import checkData
 from keras_crnn import createCRNNModel
 from keras.utils import np_utils
@@ -125,7 +124,7 @@ def _ignore_config_combo(combo):
             return True
     return False
 
-# Setup the failt-safe to always print out the results so far before exiting the program.
+# Setup the fail-safe to always print out the results so far before exiting the program.
 results_table = []
 def handle_exit():
     # Prints the efficacy of different model configs in a table.
