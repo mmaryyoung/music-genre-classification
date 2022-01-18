@@ -1,3 +1,16 @@
+"""
+This script parses all the audio files in a directory, chop each
+song into smaller samples, attaching the genre label (as integer)
+at the very end of the sample data (as a list), and then randomly assign
+all the samples from that song into either training, testing, or validation
+dataset. The three sets are then saved separately as ".npy" files.
+
+Input: N files of [1, 2, 3, 4, 5....] format (1D list) stored in SOURCE_PATH
+Output: three npy files of [[1, 2, 3, 4,..., 0], [1, 2, 3, 4,..., 1]] format stored in DEST_PATH
+        (2D list, with the last element in each sub-list being the sample label).
+"""
+
+
 import librosa
 import numpy as np
 import os
@@ -16,18 +29,20 @@ training = np.array([]).reshape(0, SOURCE_RATE*SECONDS_PER_SAMPLE+1)
 testing = np.array([]).reshape(0, SOURCE_RATE*SECONDS_PER_SAMPLE+1)
 validation = np.array([]).reshape(0, SOURCE_RATE*SECONDS_PER_SAMPLE+1)
 
-# Generate a list of shuffled song indices to help randomly distribute the songs in a genre to training,
-# testing, or validation data set.
+# Generate a list of shuffled song indices to help randomly distribute
+# the songs in a genre to training, testing, or validation data set.
 shuffled_song_indices = list(range(SONGS_PER_GENRE))
 random.shuffle(shuffled_song_indices)
+
 def parse_audio(genre_index, song_index, file_name):
     y, sr = librosa.load(file_name)
 
-    # Truncate the raw data to even multuples of source rate and then chop it up to SECONDS_PER_SAMPLE chunks
+    # Truncate the raw data to even multuples of source rate and then
+    # chop it up to SAMPLES_PER_SONG chunks of size SECONDS_PER_SAMPLE.
     if(len(y) > sr * SONG_LENGTH):
         raw_wave = y[:sr * SONG_LENGTH]
     elif(len(y) < sr * SONG_LENGTH):
-        # Padding raw wave with zeroes
+        # Padding raw wave with zeroes.
         raw_wave = np.zeros(sr*SONG_LENGTH)
         raw_wave[:len(y)] = y
     else:

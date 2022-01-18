@@ -1,3 +1,8 @@
+"""
+The purpose of this script is to slice 30-second raw audios into smaller
+sample clips. These clips can be used for human training/testing purposes.
+"""
+
 import os
 from pathlib import Path
 from pydub import AudioSegment
