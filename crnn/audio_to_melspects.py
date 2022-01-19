@@ -76,15 +76,16 @@ N_FFT = args.fft
 HOP_LENGTH = N_FFT // 2
 N_MELS = args.mel
 
+if os.path.isdir(SOURCE_PATH) != os.path.isdir(DEST_PATH):
+    raise ValueError('The source variable and the destination variable must be both directories or both files.')
 
-gid = 0
-for root, dirs, files in os.walk(SOURCE_PATH):
-    sid = 0
-    print(root, gid)
-    for name in files:
-        if 'mp3' in name:
-            melspecs = batch_log_melspectrogram(parse_audio(root + '/' + name))
-            np.savez(DEST_PATH + os.path.splitext(name)[0] + '.npz')
-            sid += 1
-    if sid != 0:
-        gid += 1
+if os.path.isdir(SOURCE_PATH):
+    for root, dirs, files in os.walk(SOURCE_PATH):
+        print(root)
+        for name in files:
+            if 'mp3' in name:
+                melspecs = batch_log_melspectrogram(parse_audio(root + '/' + name))
+                np.savez(DEST_PATH + os.path.splitext(name)[0] + '.npz')
+else:
+    melspecs = batch_log_melspectrogram(parse_audio(SOURCE_PATH))
+    np.savez(DEST_PATH + os.path.splitext(name)[0] + '.npz')
