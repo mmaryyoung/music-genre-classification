@@ -1,6 +1,10 @@
 """
-This script aims to take one sample audio file, and turn it into
-multiple melspectrum sub-samples. 
+This script aims to convert one or many audio files into individual
+melspectrum sub-samples (samples from one audio will be in the same file).
+
+Output: an .npz file to a local directory. It can be retrieved by np.load(FILE_PATH) into a dictionary.
+    Here are some sample sizes for the output data: 
+	data.shape = (5, 64, 1292)
 """
 
 import argparse
@@ -86,6 +90,7 @@ if os.path.isdir(SOURCE_PATH):
             if 'mp3' in name:
                 melspecs = batch_log_melspectrogram(parse_audio(root + '/' + name))
                 np.savez(DEST_PATH + os.path.splitext(name)[0] + '.npz')
+                # TODO: find a way to carry the label information through.
 else:
     melspecs = batch_log_melspectrogram(parse_audio(SOURCE_PATH))
-    np.savez(DEST_PATH + os.path.splitext(name)[0] + '.npz')
+    np.savez(DEST_PATH + os.path.splitext(SOURCE_PATH)[-2] + '.npz')
