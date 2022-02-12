@@ -130,3 +130,17 @@ def train_with_config(x_tr, y_tr, x_te, y_te, opt_type, learning_rate, conv_num,
         verbose=2,
         shuffle=True)
     return history, model
+
+def train_with_model(x_tr, y_tr, x_te, y_te, model, opt_type, learning_rate):
+    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='categorical_accuracy', patience=7)
+    opt = _get_optimizer(opt_type, learning_rate)
+    model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['categorical_accuracy'])
+    history = model.fit(
+        x=x_tr, y=y_tr,
+        validation_data=(x_te, y_te),
+        batch_size=20,
+        epochs=100,
+        callbacks=[early_stopping_callback],
+        verbose=2,
+        shuffle=True)
+    return history, model

@@ -11,8 +11,9 @@ Each training's learning curve will be printed via the .process_history.py scrip
 import argparse
 import atexit
 import csv
+from pkgutil import get_data
 import training_utils
-from data_sanity_check import checkData
+from parse_track_genres import get_track_genre_map
 import numpy as np
 from operator import itemgetter
 import os
@@ -38,6 +39,8 @@ arg_parser.add_argument(
 arg_parser.add_argument(
     'save_model',
     help='The absolute path where the saved model will be.')
+arg_parser.add_argument(
+    'genre_map', 'The CSV file that contains the track_id-to-genre mapping.')
 arg_parser.add_argument(
     '-m', '--model', help='Start with a previously saved model and provide its path.')
 arg_parser.add_argument(
@@ -81,32 +84,69 @@ config = {
 config_summary_str = training_utils.dict_to_string(config)
 print('Training with model: %s.' % config_summary_str)
 
+# Load the track-to-genre map
+genre_map = get_track_genre_map(args.genre_map)
+
+# Given a root directory, load all the files excepting the ones in a blocklist.
+def get_all_track_paths(track_root, excluded_files=None):
+    paths = []
+    for root, _, files in os.walk(track_root):
+        for name in files:
+            if not excluded_files or name not in excluded_files:
+                paths.append(root + '/' + name)
+
+all_train_paths = get_all_track_paths(args.train, processed_files)
+all_test_paths = get_all_track_paths(args.test, processed_files)
+
+def get_data_labels_from_paths(paths):
+    data = []
+    labels = []
+    for file in paths:
+        new_samples = np.load(file)
+        data = data + new_samples
+        labels = labels + [genre_map[int(os.path.basename(file).split('.')[0])]] * len(new_samples)
+    return data, labels
+
 # Load the testing files.
 print('Processing test files from %s' % args.test)
-x_test = []
-for root, dirs, files in os.walk(args.test):
-    print(root)
-    for f in files:
-        x_test = x_test + np.load(root + '/' + f)
-print('Testing data shape: %s' % str(x_test.shape))
+shuffled_testing_idx = np.random.permutation(len(all_test_paths))
+all_test_paths = all_test_paths[shuffled_testing_idx]
+x_test, y_test = get_data_labels_from_paths(all_test_paths)
 
-for root, dirs, files in os.walk(args.train):
-    print(root)
-    for name in files:
-        if name not in processed_files:
-            x_train = np.load(root + '/' + name)
-            try:
-                history, current_model = training_utils.train_with_config(x_train, y_tr, x_test, y_te, **config)
-                # Prints and saves the best result from this config.
-                max_acc_idx, max_acc = max(enumerate(history.history['val_categorical_accuracy']), key=itemgetter(1))
-                print(
-                    'Done with the %s model. Best validation accuracy is %f, achieved at epoch #%d.' % (
-                    config_summary_str, max_acc, max_acc_idx + 1))
-                # Save the learning curve figure from this config.
-                batch_timestamp = str(datetime.datetime.now())
-                fig_title = FIG_DIR_PATH + batch_timestamp + config_summary_str.replace('/', '-')
-                plot_history(history, fig_title)
-                print('Done saving the last learning curve. ')
-            except ValueError as e:
-                print('The config %s does not work. Error: %s.' % (config_summary_str, e))
+print('Testing data shape: %s' % str(x_test.shape))
+print('Testing labels shape: %s' % str(y_test.shape))
+
+# Decide if this is the first ever run, if so, load more data at once.
+train_batch_size = 1000 if current_model is None else 10
+
+# Shuffle the training files for reading.
+shuffled_training_idx = np.random.permutation(len(all_train_paths))
+all_train_paths = all_train_paths[shuffled_training_idx]
+
+while len(all_train_paths) >= train_batch_size:
+    # Load the training files
+    x_train, y_train = get_data_labels_from_paths(all_train_paths[:train_batch_size])
+    all_train_paths = all_train_paths[train_batch_size:] 
+    train_batch_size = 10
+    try:
+        history
+        current_model
+        if current_model:
+            history, current_model = training_utils.train_with_model(
+                x_train, y_train, x_test, y_test, current_model, config['opt_type'], config['learning_rate'])
+        else:
+            history, current_model = training_utils.train_with_config(x_train, y_train, x_test, y_test, **config)
+        # Prints and saves the best result from this config.
+        max_acc_idx, max_acc = max(enumerate(history.history['val_categorical_accuracy']), key=itemgetter(1))
+        print(
+            'Done with the %s model. Best validation accuracy is %f, achieved at epoch #%d.' % (
+            config_summary_str, max_acc, max_acc_idx + 1))
+        # Save the learning curve figure from this config.
+        batch_timestamp = str(datetime.datetime.now())
+        fig_title = FIG_DIR_PATH + batch_timestamp + config_summary_str.replace('/', '-')
+        plot_history(history, fig_title)
+        print('Done saving the last learning curve. ')
+    except ValueError as e:
+        print('The config %s does not work. Error: %s.' % (config_summary_str, e))
+        
 
