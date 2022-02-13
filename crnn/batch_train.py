@@ -14,6 +14,7 @@ import csv
 from pkgutil import get_data
 import training_utils
 from parse_track_genres import get_track_genre_map
+import pandas as pd
 import numpy as np
 from operator import itemgetter
 import os
@@ -22,7 +23,6 @@ from tabulate import tabulate
 from tensorflow import keras
 
 import datetime
-import sys
 
 # Where the learning curve figures go.
 FIG_DIR_PATH = './learning_curve_figs/'
@@ -39,6 +39,8 @@ arg_parser.add_argument(
 arg_parser.add_argument(
     'save_model',
     help='The absolute path where the saved model will be.')
+arg_parser.add_argument(
+    'processed_files', help='A file path that contains the song names that the current model already processed.')
 arg_parser.add_argument(
     'genre_map', 'The CSV file that contains the track_id-to-genre mapping.')
 arg_parser.add_argument(
@@ -59,17 +61,25 @@ arg_parser.add_argument(
     '-cs', '--conv_stride', default=3, help='The distance between convolutional kernels. Default is 3.')
 args = arg_parser.parse_args()
 
-# Setup the fail-safe to always save the model before exiting the program.
+# Processes previous model and records if any.
 current_model = keras.models.load_model(args.m) if args.m else None
 processed_files = []
-if args.ps:
+try:
     with open(args.ps, 'r') as csvfile:
         csvreader = csv.reader(csvfile)
         processed_files = [name for name in csvreader]
+except IOError:
+    # If the file does not exist, do nothing.
+    pass
+
+# Setup the fail-safe to always save the model before exiting the program.
 def handle_exit():
     # Saves the current model state.
     if current_model:
         current_model.save(args.save_model)
+    if processed_files:
+        pd.Series(processed_files).to_csv(args.processed_files, index=False)
+
 atexit.register(handle_exit)
 
 # Set up all the training configs.
@@ -126,16 +136,16 @@ all_train_paths = all_train_paths[shuffled_training_idx]
 while len(all_train_paths) >= train_batch_size:
     # Load the training files
     x_train, y_train = get_data_labels_from_paths(all_train_paths[:train_batch_size])
-    all_train_paths = all_train_paths[train_batch_size:] 
     train_batch_size = 10
     try:
         history
-        current_model
         if current_model:
             history, current_model = training_utils.train_with_model(
                 x_train, y_train, x_test, y_test, current_model, config['opt_type'], config['learning_rate'])
         else:
             history, current_model = training_utils.train_with_config(x_train, y_train, x_test, y_test, **config)
+        # Marks the files as "processed".
+        processed_files += [os.path.basename(file) for file in all_train_paths[train_batch_size:]]
         # Prints and saves the best result from this config.
         max_acc_idx, max_acc = max(enumerate(history.history['val_categorical_accuracy']), key=itemgetter(1))
         print(
