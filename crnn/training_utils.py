@@ -109,12 +109,14 @@ def is_ignore_config(config):
 def dict_to_string(dictionary):
     return '-'.join([k + '=' + str(v) for k, v in dictionary.items()])
 
-# Trains the global data with variable optimizer specs.
+# Trains the global data with variable optimizer specs. Note that the input x_train
+# should be of shape (num_samples, num_mels, num_chunks_per_sample, 1)
 def train_with_config(x_tr, y_tr, x_te, y_te, opt_type, learning_rate, conv_num, conv_filter, conv_kernel_size, conv_stride):
     early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='categorical_accuracy', patience=7)
     opt = _get_optimizer(opt_type, learning_rate)
     model = createCRNNModel(
         x_tr.shape[1:],
+        num_classes=y_tr.shape[-1],
         conv_num=conv_num,
         conv_filter=conv_filter,
         conv_kernel_size=conv_kernel_size,
@@ -124,13 +126,14 @@ def train_with_config(x_tr, y_tr, x_te, y_te, opt_type, learning_rate, conv_num,
     history = model.fit(
         x=x_tr, y=y_tr,
         validation_data=(x_te, y_te),
-        batch_size=20,
+        batch_size=10,
         epochs=100,
         callbacks=[early_stopping_callback],
         verbose=2,
         shuffle=True)
     return history, model
 
+# Same as train_with_config, but with an existing model as a starting point.
 def train_with_model(x_tr, y_tr, x_te, y_te, model, opt_type, learning_rate):
     early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='categorical_accuracy', patience=7)
     opt = _get_optimizer(opt_type, learning_rate)
@@ -138,7 +141,7 @@ def train_with_model(x_tr, y_tr, x_te, y_te, model, opt_type, learning_rate):
     history = model.fit(
         x=x_tr, y=y_tr,
         validation_data=(x_te, y_te),
-        batch_size=20,
+        batch_size=10,
         epochs=100,
         callbacks=[early_stopping_callback],
         verbose=2,

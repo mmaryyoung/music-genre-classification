@@ -8,5 +8,6 @@
 *.png
 # Ignore the data folder.
 crnn/gtzan/*
-# Ignore the training log.
+# Ignore the training log and record keeping files.
 crnn/training_logs/*
+crnn/trained_models/*

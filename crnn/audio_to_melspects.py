@@ -72,13 +72,13 @@ args = arg_parser.parse_args()
 SOURCE_PATH = args.src
 DEST_PATH = args.dst
 
-SOURCE_RATE = args.sr
-SECONDS_PER_SAMPLE = args.sps
-SAMPLES_PER_SONG = args.spf
+SOURCE_RATE = args.source_rate
+SECONDS_PER_SAMPLE = args.seconds_per_sample
+SAMPLES_PER_SONG = args.samples_per_file
 SONG_LENGTH = SECONDS_PER_SAMPLE * SAMPLES_PER_SONG
-N_FFT = args.fft
+N_FFT = args.number_of_fft
 HOP_LENGTH = N_FFT // 2
-N_MELS = args.mel
+N_MELS = args.number_of_mels
 
 if os.path.isdir(SOURCE_PATH) != os.path.isdir(DEST_PATH):
     raise ValueError('The source variable and the destination variable must be both directories or both files.')
@@ -89,8 +89,7 @@ if os.path.isdir(SOURCE_PATH):
         for name in files:
             if 'mp3' in name:
                 melspecs = batch_log_melspectrogram(parse_audio(root + '/' + name))
-                np.savez(DEST_PATH + os.path.splitext(name)[0] + '.npz')
-                # TODO: find a way to carry the label information through.
+                np.save(DEST_PATH + os.path.splitext(name)[0], melspecs)
 else:
     melspecs = batch_log_melspectrogram(parse_audio(SOURCE_PATH))
-    np.savez(DEST_PATH + os.path.splitext(SOURCE_PATH)[-2] + '.npz')
+    np.savez(DEST_PATH + os.path.splitext(SOURCE_PATH)[-2], melspecs)

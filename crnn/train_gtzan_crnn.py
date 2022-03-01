@@ -11,7 +11,7 @@ Each training's learning curve will be printed via the .process_history.py scrip
 import atexit
 import training_utils
 from data_sanity_check import checkData
-from load_training_data import load_data
+from file_loader_utils import load_data
 from operator import itemgetter
 from process_history import plot_history
 from tabulate import tabulate
@@ -32,6 +32,7 @@ atexit.register(handle_exit)
 
 # Loads data from pre-precessed GTZAN dataset as melspectrograms.
 x_tr, y_tr, x_te, y_te, x_cv, y_cv = load_data(MELSPECTS_SOURCE_PATH)
+print("Shape of x_tr: %s, shape of y_tr: %s" % (str(x_tr.shape), str(y_tr.shape)))
 
 # Makes sure the data passes basic sanity checks before moving forward.
 if not checkData(x_tr, x_te, x_cv):
