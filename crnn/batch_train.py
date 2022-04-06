@@ -8,29 +8,31 @@ no longer improves.
 Each training's learning curve will be printed via the .process_history.py script.
 
 Example command:
-python3 batch_train.py gtzan/fma/train gtzan/fma/test trained_models/20200223.m trained_models/20200223.csv /Users/maryyang/Downloads/fma_metadata/tracks.csv
+python3 batch_train.py gtzan/fma/train gtzan/fma/test \
+    trained_models/20200223.m trained_models/20200223.csv \
+    /Users/maryyang/Downloads/fma_metadata/tracks.csv
 """
 
 import argparse
 import atexit
 import csv
 from pkgutil import get_data
-from keras.utils import np_utils
 import file_loader_utils
 import training_utils
-from parse_track_genres import get_track_genre_map
+from parse_track_genres import get_track_genre_map, get_all_genres
 import pandas as pd
 import numpy as np
-from operator import itemgetter
 import os
 from process_history import plot_history
 from tabulate import tabulate
 from tensorflow import keras
 
-import datetime
-
 # Where the learning curve figures go.
 FIG_DIR_PATH = './learning_curve_figs/'
+
+# Constants
+INITIAL_TRAINING_SIZE = 1000
+FOLLOWUP_TRAINING_SIZE = 100
 
 # Parsing command line arguments.
 arg_parser = argparse.ArgumentParser(
@@ -100,10 +102,12 @@ print('Training with model: %s.' % config_summary_str)
 
 # Load the track-to-genre map
 genre_map = get_track_genre_map(args.genre_map)
-all_genres = sorted(set(filter(lambda x: x==x, genre_map['genre_top'])))
 
 all_train_paths = file_loader_utils.get_all_track_paths(args.train, processed_files)
 all_test_paths = file_loader_utils.get_all_track_paths(args.test, processed_files)
+
+all_genres = sorted(
+    get_all_genres(genre_map, all_train_paths).union(get_all_genres(genre_map, all_test_paths)))
 
 # Load the testing files.
 shuffled_testing_idx = np.random.permutation(len(all_test_paths))
@@ -116,7 +120,7 @@ print('Testing data shape: %s' % str(x_test.shape))
 print('Testing labels shape: %s' % str(y_test.shape))
 
 # Decide if this is the first ever run, if so, load more data at once.
-train_batch_size = 100 if current_model is None else 10
+train_batch_size = INITIAL_TRAINING_SIZE if current_model is None else FOLLOWUP_TRAINING_SIZE
 
 # Shuffle the training files for reading.
 shuffled_training_idx = np.random.permutation(len(all_train_paths))
@@ -130,27 +134,18 @@ while len(all_train_paths) >= train_batch_size:
     x_train = file_loader_utils.prep_x_data(x_train)
     y_train = file_loader_utils.prep_y_data(y_train, all_genres)
     try:
-        history = 0
         if current_model:
-            history, current_model = training_utils.train_with_model(
-                x_train, y_train, x_test, y_test, current_model, config['opt_type'], config['learning_rate'])
+            current_model = training_utils.train_with_model(
+                x_train, y_train, x_test, y_test, current_model, config['opt_type'], config['learning_rate']/10)
         else:
-            history, current_model = training_utils.train_with_config(x_train, y_train, x_test, y_test, **config)
+            current_model = training_utils.train_with_all_configs(
+                training_utils.get_all_configs(), x_train, y_train, x_test, y_test)
         # Marks the files as "processed".
         processed_files += [os.path.basename(file) for file in all_train_paths[train_batch_size:]]
-        all_train_paths = all_train_paths[:train_batch_size]
+        all_train_paths = all_train_paths[train_batch_size:]
         print("Size of processed files %d" % len(processed_files))
         print("Size of all_train_paths %d" % len(all_train_paths))
-        # Prints and saves the best result from this config.
-        max_acc_idx, max_acc = max(enumerate(history.history['val_categorical_accuracy']), key=itemgetter(1))
-        print(
-            'Done with the %s model. Best validation accuracy is %f, achieved at epoch #%d.' % (
-            config_summary_str, max_acc, max_acc_idx + 1))
-        # Save the learning curve figure from this config.
-        batch_timestamp = str(datetime.datetime.now())
-        fig_title = FIG_DIR_PATH + batch_timestamp + config_summary_str.replace('/', '-')
-        plot_history(history, fig_title)
-        print('Done saving the last learning curve. ')
+        
     except ValueError as e:
         print('The config %s does not work. Error: %s.' % (config_summary_str, e))
         break

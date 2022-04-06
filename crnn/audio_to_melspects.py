@@ -88,8 +88,12 @@ if os.path.isdir(SOURCE_PATH):
         print(root)
         for name in files:
             if 'mp3' in name:
-                melspecs = batch_log_melspectrogram(parse_audio(root + '/' + name))
-                np.save(DEST_PATH + os.path.splitext(name)[0], melspecs)
+                try:
+                    melspecs = batch_log_melspectrogram(parse_audio(root + '/' + name))
+                    np.save(DEST_PATH + os.path.splitext(name)[0], melspecs)
+                except Exception as e:
+                    print("Running into error and skipping a file: %s" % str(e))
+
 else:
     melspecs = batch_log_melspectrogram(parse_audio(SOURCE_PATH))
-    np.savez(DEST_PATH + os.path.splitext(SOURCE_PATH)[-2], melspecs)
+    np.save(DEST_PATH + os.path.splitext(SOURCE_PATH)[-2], melspecs)

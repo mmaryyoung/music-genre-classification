@@ -73,10 +73,9 @@ def get_data_labels_from_paths(paths, genre_map):
     for file in paths:
         if 'npy' not in file:
             continue
-        print("Processing file %s." % file)
         new_samples = np.load(file)
         data = np.concatenate((data, new_samples)) if len(data) > 0 else new_samples
-        labels = labels + [genre_map.loc[[os.path.basename(file).split('.')[0]]]] * len(new_samples)
+        labels = labels + [genre_map.at[str(int(os.path.basename(file).split('.')[0])), 'genre_top']] * len(new_samples)
     return data, np.array(labels)
 
 # Given a root directory, load all the files excepting the ones in a blocklist.

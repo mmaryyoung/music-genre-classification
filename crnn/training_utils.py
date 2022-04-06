@@ -1,7 +1,9 @@
+import tensorflow as tf
 from tensorflow.keras.optimizers import Adadelta, Adagrad, Adamax, Adam, Nadam, RMSprop, SGD, Ftrl
 from model_utils import createCRNNModel
 import itertools
-import tensorflow as tf
+from operator import itemgetter
+from tabulate import tabulate
 
 # All potential network configurations.
 OPT_TYPES = [
@@ -146,4 +148,34 @@ def train_with_model(x_tr, y_tr, x_te, y_te, model, opt_type, learning_rate):
         callbacks=[early_stopping_callback],
         verbose=2,
         shuffle=True)
-    return history, model
+    # Prints and saves the best result from this config.
+    max_acc_idx, max_acc = max(enumerate(history.history['val_categorical_accuracy']), key=itemgetter(1))
+    return model
+
+def train_with_all_configs(all_configs, x_tr, y_tr, x_te, y_te):
+    results_table = []
+    best_model = None
+    best_val_acc = 0
+    for config in all_configs:
+        config_summary_str = dict_to_string(config)
+        print('Training with model: %s.' % config_summary_str)
+        try:
+            history, current_model = train_with_config(x_tr, y_tr, x_te, y_te, **config)
+            # Prints and saves the best result from this config.
+            max_acc_idx, max_acc = max(enumerate(history.history['val_categorical_accuracy']), key=itemgetter(1))
+            print(
+                'Done with the %s model. Best validation accuracy is %f, achieved at epoch #%d.' % (
+                config_summary_str, max_acc, max_acc_idx + 1))
+            results_table.append({
+                **config,
+                'best_val_accuracy': max_acc,
+                'best_val_accuracy_epoch': max_acc_idx + 1
+            })
+            if max_acc > best_val_acc:
+                best_model = current_model
+                best_val_acc = max_acc
+        except ValueError as e:
+            print('The config %s does not work. Error: %s.' % (config_summary_str, e))
+    print("Done trying all configs. Here is the results table:")
+    print(tabulate(results_table, headers='keys', tablefmt='github'))
+    return best_model
